@@ -118,7 +118,7 @@ var hasChangedAttrs = function(unused1, unused2, unused3, var_args) {
   }
 
   if (attrsChanged) {
-    for (i = ATTRIBUTES_OFFSET; i < arguments.length; i += 2) {
+    for (; i < arguments.length; i += 2) {
       attrsArr[(i - ATTRIBUTES_OFFSET) >> 1] = arguments[i + 1];
     }
   }
