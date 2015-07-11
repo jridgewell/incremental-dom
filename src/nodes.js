@@ -131,6 +131,32 @@ var getChild = function(parent, key) {
 
 
 /**
+ * Removes a child from the parent with the given key, incrementing the
+ * number of removed children. When too many are removed, the cache will
+ * be deleted entirely.
+ * @param {!Element} parent
+ * @param {?string} key
+ */
+var removeChild = function(parent, key) {
+  var data = getData(parent);
+  var keyMap = data.keyMap;
+
+  if (keyMap) {
+    var deleted = data.keyMapDeleted + 1;
+
+    if (deleted > 20) {
+      data.keyMap = null;
+      deleted = 0;
+    } else {
+      keyMap[key] = null;
+    }
+
+    data.keyMapDeleted = deleted;
+  }
+};
+
+
+/**
  * Registers a node as being a child. The parent will keep track of the child
  * using the key. The child can be retrieved using the same key using
  * getKeyMap. The provided key should be unique within the parent Element.
@@ -139,7 +165,14 @@ var getChild = function(parent, key) {
  * @param {!Node} child The child to register.
  */
 var registerChild = function(parent, key, child) {
-  getKeyMap(parent)[key] = child;
+  var keyMap = getKeyMap(parent);
+
+  if (key in keyMap && !keyMap[key]) {
+    var data = getData(parent);
+    data.keyMapDeleted -= 1;
+  }
+
+  keyMap[key] = child;
 };
 
 
@@ -147,6 +180,7 @@ var registerChild = function(parent, key, child) {
 export {
   createNode,
   getChild,
-  registerChild
+  registerChild,
+  removeChild
 };
 

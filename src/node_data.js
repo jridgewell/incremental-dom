@@ -56,6 +56,12 @@ function NodeData(nodeName, key) {
   this.keyMap = null;
 
   /**
+   * Keeps track of the number of removed children within this node.
+   * {number}
+   */
+  this.keyMapDeleted = 0;
+
+  /**
    * The last child to have been visited within the current pass.
    * {?Node}
    */
