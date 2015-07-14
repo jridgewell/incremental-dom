@@ -88,6 +88,17 @@ if (process.env.NODE_ENV !== 'production') {
       throw new Error('Received a call to close ' + tag + ' but ' +
             data.nodeName + ' was open.');
     }
+  }
+
+  /**
+  * Makes sure that the caller provided a key for the placeholder.
+  * @param {string} key The key used to identify this element.
+  */
+  var assertPlaceholderHasKey = function(key) {
+      if (!key) {
+        throw new Error('Was expecting a key to be provided with the ' +
+            'placeholder.');
+      }
   };
 
 
@@ -298,6 +309,29 @@ var text = function(value, var_args) {
   nextSibling();
 };
 
+/**
+ * Declares a virtual Element at the current location in the document that
+ * represents a placeholder without specific content.
+ * @param {string} tag The element's tag.
+ * @param {string} key The key used to identify this element.
+ * @param {?Array<*>} statics An array of attribute name/value pairs of the
+ *     static attributes for the Element. These will only be set once when the
+ *     Element is created.
+ * @param {...*} var_args Attribute name/value pairs of the dynamic attributes
+ *     for the Element.
+ * @return {!Element} The corresponding Element.
+ */
+var elementPlaceholder = function(tag, key, statics, var_args) {
+  if (process.env.NODE_ENV !== 'production') {
+    assertNotInAttributes();
+    assertPlaceholderHasKey(key);
+  }
+
+  var node = alignWithDOM(tag, key, statics);
+  nextSibling();
+  return node;
+};
+
 
 /** */
 export {
@@ -306,6 +340,7 @@ export {
   elementOpen,
   elementVoid,
   elementClose,
+  elementPlaceholder,
   text,
   attr
 };

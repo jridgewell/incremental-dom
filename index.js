@@ -22,8 +22,8 @@ export {
   elementOpenEnd,
   elementOpen,
   elementClose,
+  elementPlaceholder,
   text,
   attr,
 } from './src/virtual_elements';
 export { attributes } from './src/attributes';
-
