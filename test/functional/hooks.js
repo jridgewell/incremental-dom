@@ -17,13 +17,14 @@
 import {
     patch,
     elementVoid,
-    attributes
+    mutators
 } from '../../index';
 
 
 describe('library hooks', () => {
   var container;
   var sandbox = sinon.sandbox.create();
+  var stub;
 
   beforeEach(() => {
     container = document.createElement('div');
@@ -42,37 +43,126 @@ describe('library hooks', () => {
     }
 
     beforeEach(() => {
-      sandbox.spy(attributes, 'applyAttr');
-    });
-  
-    it('should be called for static attributes', () => {
-      patch(container, render, 'dynamicValue');
-      var el = container.childNodes[0];
-
-      expect(attributes.applyAttr).calledWith(el, 'staticName', 'staticValue');
+      stub = sinon.stub();
     });
 
-    it('should be called for dynamic attributes', () => {
-      patch(container, render, 'dynamicValue');
-      var el = container.childNodes[0];
+    describe('for static attributes', () => {
+      it('should call specific setter', () => {
+        mutators.attributes.staticName = stub;
+        patch(container, render, 'dynamicValue');
+        var el = container.childNodes[0];
 
-      expect(attributes.applyAttr).calledWith(el, 'dynamicName', 'dynamicValue');
+        expect(stub).calledWith(el, 'staticName', 'staticValue');
+        mutators.attributes.staticName = null;
+      });
+
+      it('should call generic setter', () => {
+        mutators.attributes.__all__ = stub;
+        patch(container, render, 'dynamicValue');
+        var el = container.childNodes[0];
+
+        expect(stub).calledWith(el, 'staticName', 'staticValue');
+        mutators.attributes.__all__ = null;
+      });
+
+      it('should prioritize specific setter over generic', () => {
+        var allStub = sinon.stub();
+        mutators.attributes.__all__ = allStub;
+        mutators.attributes.staticName = stub;
+
+        patch(container, render, 'dynamicValue');
+
+        expect(stub).calledOnce;
+        expect(allStub).notCalled;
+
+        mutators.attributes.__all__ = null;
+        mutators.attributes.staticName = null;
+      });
     });
 
-    it('should be called on attribute update', () => {
-      patch(container, render, 'dynamicValueOne');
-      patch(container, render, 'dynamicValueTwo');
-      var el = container.childNodes[0];
+    describe('for specific dynamic attributes', () => {
+      beforeEach(() => {
+        stub = sinon.stub();
+        mutators.attributes.dynamicName = stub;
+      });
 
-      expect(attributes.applyAttr).calledWith(el, 'dynamicName', 'dynamicValueTwo');
+      afterEach(() => {
+        mutators.attributes.dynamicName = null;
+      });
+
+      it('should be called for dynamic attributes', () => {
+        patch(container, render, 'dynamicValue');
+        var el = container.childNodes[0];
+
+        expect(stub).calledWith(el, 'dynamicName', 'dynamicValue');
+      });
+
+      it('should be called on attribute update', () => {
+        patch(container, render, 'dynamicValueOne');
+        patch(container, render, 'dynamicValueTwo');
+        var el = container.childNodes[0];
+
+        expect(stub).calledTwice;
+        expect(stub).calledWith(el, 'dynamicName', 'dynamicValueTwo');
+      });
+
+      it('should allow only be called when attributes change', () => {
+        patch(container, render, 'dynamicValue');
+        patch(container, render, 'dynamicValue');
+        var el = container.childNodes[0];
+
+        expect(stub).calledOnce;
+        expect(stub).calledWith(el, 'dynamicName', 'dynamicValue');
+      });
+
+      it('should prioritize specific setter over generic', () => {
+        var allStub = sinon.stub();
+        mutators.attributes.__all__ = allStub;
+        mutators.attributes.dynamicValue = stub;
+
+        patch(container, render, 'dynamicValue');
+
+        expect(stub).calledOnce;
+        expect(allStub).notCalled;
+
+        mutators.attributes.__all__ = null;
+        mutators.attributes.dynamicValue = null;
+      });
     });
 
-    it('should allow only be called when attributes change', () => {
-      patch(container, render, 'dynamicValue');
-      patch(container, render, 'dynamicValue');
+    describe('for generic dynamic attributes', () => {
+      var allStub;
+      beforeEach(() => {
+        stub = sinon.stub();
+        mutators.attributes.__all__ = stub;
+      });
 
-      // Called once for the static attribute and once for the dynamic one
-      expect(attributes.applyAttr).calledTwice;
+      afterEach(() => {
+        mutators.attributes.__all__ = null;
+      });
+
+      it('should be called for dynamic attributes', () => {
+        patch(container, render, 'dynamicValue');
+        var el = container.childNodes[0];
+
+        expect(stub).calledWith(el, 'dynamicName', 'dynamicValue');
+      });
+
+      it('should be called on attribute update', () => {
+        patch(container, render, 'dynamicValueOne');
+        patch(container, render, 'dynamicValueTwo');
+        var el = container.childNodes[0];
+
+        expect(stub).calledWith(el, 'dynamicName', 'dynamicValueTwo');
+      });
+
+      it('should allow only be called when attributes change', () => {
+        patch(container, render, 'dynamicValue');
+        patch(container, render, 'dynamicValue');
+        var el = container.childNodes[0];
+
+        expect(stub).calledWith(el, 'dynamicName', 'dynamicValue');
+      });
     });
   });
 });
