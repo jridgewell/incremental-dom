@@ -17,8 +17,11 @@
 import {
   alignWithDOM,
   clearUnvisitedDOM
-} from './alignment';
-import { updateAttribute } from './attributes';
+} from './align_nodes';
+import {
+  changedAttributes,
+  alignAttributesWithDOM
+} from './align_attributes';
 import { getData } from './node_data';
 import { getWalker } from './walker';
 import {
@@ -30,14 +33,6 @@ import {
 
 // For https://github.com/esperantojs/esperanto/issues/187
 var dummy;
-
-
-/**
- * The offset in the virtual element declaration where the attributes are
- * specified.
- * @const
- */
-var ATTRIBUTES_OFFSET = 3;
 
 
 /**
@@ -104,58 +99,30 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 
+/**
+ * Declares a virtual Element at the current location in the document. This
+ * corresponds to an opening tag and a elementClose tag is required.
+ * @param {string} tag The element's tag.
+ * @param {?string} key The key used to identify this element. This can be an
+ *     empty string, but performance may be better if a unique value is used
+ *     when iterating over an array of items.
+ * @param {?Array<*>} statics An array of attribute name/value pairs of the
+ *     static attributes for the Element. These will only be set once when the
+ *     Element is created.
+ * @param {...*} var_args Attribute name/value pairs of the dynamic attributes
+ *     for the Element.
+ * @return {!Element} The corresponding Element.
+ */
 var elementOpen = function(tag, key, statics, var_args) {
   if (process.env.NODE_ENV !== 'production') {
     assertNotInAttributes();
   }
 
   var node = alignWithDOM(tag, key, statics);
-  var data = getData(node);
 
-  /*
-   * Checks to see if one or more attributes have changed for a given Element.
-   * When no attributes have changed, this is much faster than checking each
-   * individual argument. When attributes have changed, the overhead of this is
-   * minimal.
-   */
-  var attrsArr = data.attrsArr;
-  var attrsChanged = false;
-  var i = ATTRIBUTES_OFFSET;
-  var j = 0;
-
-  for (; i < arguments.length; i += 1, j += 1) {
-    if (attrsArr[j] !== arguments[i]) {
-      attrsChanged = true;
-      break;
-    }
-  }
-
-  for (; i < arguments.length; i += 1, j += 1) {
-    attrsArr[j] = arguments[i];
-  }
-
-  if (j < attrsArr.length) {
-    attrsChanged = true;
-    attrsArr.length = j;
-  }
-
-  /*
-   * Actually perform the attribute update.
-   */
-  if (attrsChanged) {
-    var newAttrs = data.newAttrs;
-
-    for (var attr in newAttrs) {
-      newAttrs[attr] = undefined;
-    }
-
-    for (var i = ATTRIBUTES_OFFSET; i < arguments.length; i += 2) {
-      newAttrs[arguments[i]] = arguments[i + 1];
-    }
-
-    for (var attr in newAttrs) {
-      updateAttribute(node, attr, newAttrs[attr]);
-    }
+  var changed = changedAttributes.apply(node, arguments);
+  if (changed) {
+    alignAttributesWithDOM(node, changed);
   }
 
   firstChild();

@@ -23,7 +23,7 @@ import {
     getWalker,
     setWalker
 } from './walker';
-import { clearUnvisitedDOM } from './alignment';
+import { clearUnvisitedDOM } from './align_nodes';
 
 
 // For https://github.com/esperantojs/esperanto/issues/187

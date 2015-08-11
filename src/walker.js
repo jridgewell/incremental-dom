@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+
+// For https://github.com/esperantojs/esperanto/issues/187
+var dummy;
+
+
 /**
  * @type {TreeWalker}
  */

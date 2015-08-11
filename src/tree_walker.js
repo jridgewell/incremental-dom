@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+// For https://github.com/esperantojs/esperanto/issues/187
+var dummy;
+
+
 /**
  * Similar to the built-in Treewalker class, but simplified and allows direct
  * access to modify the currentNode property.

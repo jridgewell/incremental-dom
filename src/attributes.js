@@ -17,6 +17,10 @@
 import { getData } from './node_data';
 
 
+// For https://github.com/esperantojs/esperanto/issues/187
+var dummy;
+
+
 /**
  * Applies an attribute or property to a given Element. If the value is null
  * or undefined, it is removed from the Element. Otherwise, the value is set
