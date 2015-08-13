@@ -130,20 +130,7 @@ var mutators = {
   // Special generic attribute mutator
   __all__: null,
   // Special case the style attribute
-  style: applyStyle,
-
-  // Ensure properties are always set as properties
-  checked: applyProp,
-  className: applyProp,
-  controls: applyProp,
-  id: applyProp,
-  loop: applyProp,
-  multiple: applyProp,
-  muted: applyProp,
-  readOnly: applyProp,
-  selected: applyProp,
-  srcDoc: applyProp,
-  value: applyProp
+  style: applyStyle
 };
 
 
