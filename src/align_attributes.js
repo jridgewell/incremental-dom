@@ -82,14 +82,9 @@ var attributesOffset = ATTRIBUTES_OFFSET_INTERNAL;
 var changedAttributes = function(unused1, var_args) {
   var attrsArr = getData(this).attrsArr;
   var length = Math.max(arguments.length - attributesOffset, 0);
-  var limit = Math.min(length, attrsArr.length);
   var changed;
 
-  if (limit !== length) {
-    changed = attrsArr;
-  }
-
-  for (var i = 0; i < limit; i += 1) {
+  for (var i = 0; i < length; i += 1) {
     if (attrsArr[i] !== arguments[i + attributesOffset]) {
       changed = attrsArr;
       break;
