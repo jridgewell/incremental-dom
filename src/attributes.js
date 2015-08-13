@@ -30,7 +30,7 @@ var dummy;
  * @param {*} value The attribute's value.
  */
 var applyAttr = function(el, name, value) {
-  if (value === null || value === undefined) {
+  if (value == null) {
     el.removeAttribute(name);
   } else {
     el.setAttribute(name, value);

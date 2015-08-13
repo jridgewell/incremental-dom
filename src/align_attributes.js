@@ -45,18 +45,14 @@ var ATTRIBUTES_OFFSET_EXTERNAL = 1;
  */
 var alignAttributesWithDOM = function(node, attributes) {
   var newAttrs = getData(node).newAttrs;
-  var attr;
-
-  for (attr in newAttrs) {
-    newAttrs[attr] = undefined;
-  }
 
   for (var i = 0; i < attributes.length; i += 2) {
     newAttrs[attributes[i]] = attributes[i + 1];
   }
 
-  for (attr in newAttrs) {
+  for (var attr in newAttrs) {
     updateAttribute(node, attr, newAttrs[attr]);
+    newAttrs[attr] = undefined;
   }
 };
 
@@ -65,6 +61,7 @@ var alignAttributesWithDOM = function(node, attributes) {
  * Used by changedAttributes.
  * Exposed privately so that the public updateAttributes may modify the index
  * of the first name/value attribute pair.
+ * {number}
  */
 var attributesOffset = ATTRIBUTES_OFFSET_INTERNAL;
 
@@ -84,24 +81,28 @@ var attributesOffset = ATTRIBUTES_OFFSET_INTERNAL;
  */
 var changedAttributes = function(unused1, var_args) {
   var attrsArr = getData(this).attrsArr;
-  var i = attributesOffset;
-  var j = 0;
+  var length = Math.max(arguments.length - attributesOffset, 0);
+  var limit = Math.min(length, attrsArr.length);
   var changed;
 
-  for (; i < arguments.length; i += 1, j += 1) {
-    if (attrsArr[j] !== arguments[i]) {
+  if (limit !== length) {
+    changed = attrsArr;
+  }
+
+  for (var i = 0; i < limit; i += 1) {
+    if (attrsArr[i] !== arguments[i + attributesOffset]) {
       changed = attrsArr;
       break;
     }
   }
 
-  for (; i < arguments.length; i += 1, j += 1) {
-    attrsArr[j] = arguments[i];
+  for (; i < length; i += 1) {
+    attrsArr[i] = arguments[i + attributesOffset];
   }
 
-  if (j < attrsArr.length) {
+  if (length < attrsArr.length) {
     changed = attrsArr;
-    attrsArr.length = j;
+    attrsArr.length = length;
   }
 
   return changed;
