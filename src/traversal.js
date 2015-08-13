@@ -54,7 +54,7 @@ var markVisited = function(node) {
   var walker = getWalker();
   var parent = walker.getCurrentParent();
   var data = getData(parent);
-  data.lastVisitedChild = node;
+  data.lastVisited += 1;
 };
 
 

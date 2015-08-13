@@ -56,10 +56,10 @@ function NodeData(nodeName, key) {
   this.keyMap = null;
 
   /**
-   * The last child to have been visited within the current pass.
-   * {?Node}
+   * The index of last child to have been visited within the current pass.
+   * {number}
    */
-  this.lastVisitedChild = null;
+  this.lastVisited = 0;
 
   /**
    * The node name for this node.

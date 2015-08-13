@@ -33,16 +33,20 @@ var dummy;
  * @param {!Node} node An HTML node, typically an HTMLElement or Text.
  * @param {?string} nodeName The nodeName for this node.
  * @param {?string} key An optional key that identifies a node.
+ * @param {?boolen} loose Whether to loosely match nodes based only on the key.
  * @return {boolean} True if the node matches, false otherwise.
  */
-var matches = function(node, nodeName, key) {
+var matches = function(node, nodeName, key, loose) {
   var data = getData(node);
+
+  if (loose && key == data.key) {
+    return true;
+  }
 
   // Key check is done using double equals as we want to treat a null key the
   // same as undefined. This should be okay as the only values allowed are
   // strings, null and undefined so the == semantics are not too weird.
-  return key == data.key &&
-         nodeName === data.nodeName;
+  return key == data.key && nodeName === data.nodeName;
 };
 
 
@@ -54,16 +58,18 @@ var matches = function(node, nodeName, key) {
  * @param {?string} key The key used to identify this element.
  * @param {?Array<*>} statics For an Element, this should be an array of
  *     name-value pairs.
+ * @param {?boolean} loose For an placeholder Element, signifies to loosely
+ *     match nodes.
  * @return {!Node} The matching node.
  */
-var alignWithDOM = function(nodeName, key, statics) {
+var alignWithDOM = function(nodeName, key, statics, loose) {
   var walker = getWalker();
   var currentNode = walker.currentNode;
   var parent = walker.getCurrentParent();
   var matchingNode;
 
   // Check to see if we have a node to reuse
-  if (currentNode && matches(currentNode, nodeName, key)) {
+  if (currentNode && matches(currentNode, nodeName, key, loose)) {
     matchingNode = currentNode;
   } else {
     var existingNode = key && getChild(parent, key);
@@ -94,17 +100,17 @@ var alignWithDOM = function(nodeName, key, statics) {
  */
 var clearUnvisitedDOM = function(node) {
   var data = getData(node);
-  var lastChild = node.lastChild;
-  var lastVisitedChild = data.lastVisitedChild;
-  data.lastVisitedChild = null;
+  var length = node.childNodes.length;
+  var lastVisited = data.lastVisited;
+  data.lastVisited = 0;
 
-  if (lastChild === lastVisitedChild) {
+  if (length === lastVisited) {
     return;
   }
 
-  while (lastChild !== lastVisitedChild) {
-    node.removeChild(lastChild);
-    lastChild = node.lastChild;
+  while (length > lastVisited) {
+    node.removeChild(node.lastChild);
+    length -= 1;
   }
 
   // Invalidate the key map since we removed children. It will get recreated

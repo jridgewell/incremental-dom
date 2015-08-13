@@ -327,7 +327,7 @@ var elementPlaceholder = function(tag, key, statics, var_args) {
     assertPlaceholderHasKey(key);
   }
 
-  var node = alignWithDOM(tag, key, statics);
+  var node = alignWithDOM(tag, key, statics, true);
   nextSibling();
   return node;
 };
