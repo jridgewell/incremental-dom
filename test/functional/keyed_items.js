@@ -66,7 +66,7 @@ describe('rendering with keys', () => {
 
     patch(container, () => render(items));
 
-    expect(slice.call(container.childNodes)).to.deep.equal(nodes);
+    expect(slice.call(container.childNodes)).to.eql(nodes);
   });
 
   it('should not modify the DOM nodes when inserting', () => {

@@ -16,7 +16,7 @@
 
 module.exports = function(config) {
   config.set({
-    frameworks: ['browserify', 'mocha', 'sinon-chai'],
+    frameworks: ['browserify', 'mocha', 'sinon-expect'],
 
     files: [
       'test/**/*.js'

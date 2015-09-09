@@ -139,7 +139,7 @@ describe('element creation', () => {
 
       var el = container.childNodes[0];
       expect(el.namespaceURI).to.equal('http://www.w3.org/1999/xhtml');
-      expect(doc.createElement).to.have.been.calledOnce;
+      expect(doc.createElement).to.be.calledOnce();
     });
   });
 

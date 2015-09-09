@@ -70,7 +70,7 @@ describe('formatters', () => {
       var node = container.childNodes[0];
 
       expect(node.textContent).to.equal('stubValueOne');
-      expect(stub).to.have.been.calledOnce;
+      expect(stub).to.be.calledOnce();
     });
 
     it('should call the formatter when the value changes', () => {
@@ -79,7 +79,7 @@ describe('formatters', () => {
       var node = container.childNodes[0];
 
       expect(node.textContent).to.equal('stubValueTwo');
-      expect(stub).to.have.been.calledTwice;
+      expect(stub).to.be.calledTwice();
     });
   });
 });

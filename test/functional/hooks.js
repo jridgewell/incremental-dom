@@ -71,15 +71,15 @@ describe('library hooks', () => {
         patch(container, render, 'dynamicValue');
         var el = container.childNodes[0];
 
-        expect(stub).to.have.been.calledOnce;
-        expect(stub).to.have.been.calledWith(el, 'staticName', 'staticValue');
+        expect(stub).to.be.calledOnce();
+        expect(stub).to.be.calledWith(el, 'staticName', 'staticValue');
       });
 
       it('should call generic setter', () => {
         patch(container, render, 'dynamicValue');
         var el = container.childNodes[0];
 
-        expect(allSpy).to.have.been.calledWith(el, 'staticName', 'staticValue');
+        expect(allSpy).to.be.calledWith(el, 'staticName', 'staticValue');
       });
 
       it('should prioritize specific setter over generic', () => {
@@ -88,9 +88,9 @@ describe('library hooks', () => {
         patch(container, render, 'dynamicValue');
         var el = container.childNodes[0];
 
-        expect(stub).to.have.been.calledOnce;
-        expect(allSpy).to.have.been.calledOnce;
-        expect(allSpy).to.have.been.calledWith(el, 'dynamicName', 'dynamicValue');
+        expect(stub).to.be.calledOnce();
+        expect(allSpy).to.be.calledOnce();
+        expect(allSpy).to.be.calledWith(el, 'dynamicName', 'dynamicValue');
       });
     });
 
@@ -103,8 +103,8 @@ describe('library hooks', () => {
         patch(container, render, 'dynamicValue');
         var el = container.childNodes[0];
 
-        expect(stub).to.have.been.calledOnce;
-        expect(stub).to.have.been.calledWith(el, 'dynamicName', 'dynamicValue');
+        expect(stub).to.be.calledOnce();
+        expect(stub).to.be.calledWith(el, 'dynamicName', 'dynamicValue');
       });
 
       it('should be called on attribute update', () => {
@@ -112,8 +112,8 @@ describe('library hooks', () => {
         patch(container, render, 'dynamicValueTwo');
         var el = container.childNodes[0];
 
-        expect(stub).to.have.been.calledTwice;
-        expect(stub).to.have.been.calledWith(el, 'dynamicName', 'dynamicValueTwo');
+        expect(stub).to.be.calledTwice();
+        expect(stub).to.be.calledWith(el, 'dynamicName', 'dynamicValueTwo');
       });
 
       it('should only be called when attributes change', () => {
@@ -121,17 +121,17 @@ describe('library hooks', () => {
         patch(container, render, 'dynamicValue');
         var el = container.childNodes[0];
 
-        expect(stub).to.have.been.calledOnce;
-        expect(stub).to.have.been.calledWith(el, 'dynamicName', 'dynamicValue');
+        expect(stub).to.be.calledOnce();
+        expect(stub).to.be.calledWith(el, 'dynamicName', 'dynamicValue');
       });
 
       it('should prioritize specific setter over generic', () => {
         patch(container, render, 'dynamicValue');
         var el = container.childNodes[0];
 
-        expect(stub).to.have.been.calledOnce;
-        expect(allSpy).to.have.been.calledOnce;
-        expect(allSpy).to.have.been.calledWith(el, 'staticName', 'staticValue');
+        expect(stub).to.be.calledOnce();
+        expect(allSpy).to.be.calledOnce();
+        expect(allSpy).to.be.calledWith(el, 'staticName', 'staticValue');
       });
     });
 
@@ -140,7 +140,7 @@ describe('library hooks', () => {
         patch(container, render, 'dynamicValue');
         var el = container.childNodes[0];
 
-        expect(allSpy).to.have.been.calledWith(el, 'dynamicName', 'dynamicValue');
+        expect(allSpy).to.be.calledWith(el, 'dynamicName', 'dynamicValue');
       });
 
       it('should be called on attribute update', () => {
@@ -148,7 +148,7 @@ describe('library hooks', () => {
         patch(container, render, 'dynamicValueTwo');
         var el = container.childNodes[0];
 
-        expect(allSpy).to.have.been.calledWith(el, 'dynamicName', 'dynamicValueTwo');
+        expect(allSpy).to.be.calledWith(el, 'dynamicName', 'dynamicValueTwo');
       });
 
       it('should only be called when attributes change', () => {
@@ -156,9 +156,9 @@ describe('library hooks', () => {
         patch(container, render, 'dynamicValue');
         var el = container.childNodes[0];
 
-        expect(allSpy).to.have.been.calledTwice;
-        expect(allSpy).to.have.been.calledWith(el, 'staticName', 'staticValue');
-        expect(allSpy).to.have.been.calledWith(el, 'dynamicName', 'dynamicValue');
+        expect(allSpy).to.be.calledTwice();
+        expect(allSpy).to.be.calledWith(el, 'staticName', 'staticValue');
+        expect(allSpy).to.be.calledWith(el, 'dynamicName', 'dynamicValue');
       });
     });
   });
@@ -180,7 +180,7 @@ describe('library hooks', () => {
       });
       var el = container.childNodes[0];
 
-      expect(notifications.nodesCreated).to.have.been.calledOnce;
+      expect(notifications.nodesCreated).to.be.calledOnce();
       expect(notifications.nodesCreated).calledWith([el]);
     });
 
@@ -190,7 +190,7 @@ describe('library hooks', () => {
       });
       var el = container.childNodes[0];
 
-      expect(notifications.nodesCreated).to.have.been.calledOnce;
+      expect(notifications.nodesCreated).to.be.calledOnce();
       expect(notifications.nodesCreated).calledWith([el]);
     });
   });
@@ -224,7 +224,7 @@ describe('library hooks', () => {
       var el = container.childNodes[0];
       patch(container, empty);
 
-      expect(notifications.nodesDeleted).to.have.been.calledOnce;
+      expect(notifications.nodesDeleted).to.be.calledOnce();
       expect(notifications.nodesDeleted).calledWith([el]);
     });
 
@@ -233,7 +233,7 @@ describe('library hooks', () => {
       var el = container.childNodes[0];
       patch(container, empty);
 
-      expect(notifications.nodesDeleted).to.have.been.calledOnce;
+      expect(notifications.nodesDeleted).to.be.calledOnce();
       expect(notifications.nodesDeleted).calledWith([el]);
     });
 
@@ -242,7 +242,7 @@ describe('library hooks', () => {
       var el = container.childNodes[0];
       patch(container, render, true);
 
-      expect(notifications.nodesDeleted).to.have.been.calledOnce;
+      expect(notifications.nodesDeleted).to.be.calledOnce();
       expect(notifications.nodesDeleted).calledWith([el]);
     });
 
@@ -251,7 +251,7 @@ describe('library hooks', () => {
       var el = container.childNodes[0];
       patch(container, render, false);
 
-      expect(notifications.nodesDeleted).to.have.been.calledOnce;
+      expect(notifications.nodesDeleted).to.be.calledOnce();
       expect(notifications.nodesDeleted).calledWith([el]);
     });
 
@@ -282,7 +282,7 @@ describe('library hooks', () => {
       var el = container.childNodes[0];
       patch(container, render, false);
 
-      expect(notifications.nodesDeleted).never;
+      expect(notifications.nodesDeleted).to.be.notCalled();
     });
   });
 });

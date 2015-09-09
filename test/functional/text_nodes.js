@@ -40,7 +40,7 @@ describe('text nodes', () => {
       var node = container.childNodes[0];
 
       expect(node.textContent).to.equal('Hello world!');
-      expect(node).to.be.instanceof(Text);
+      expect(node).to.be.a(Text);
     });
 
     it('should allow for multiple text nodes under one parent element', () => {

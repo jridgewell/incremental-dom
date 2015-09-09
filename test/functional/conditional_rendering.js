@@ -136,7 +136,7 @@ describe('conditional rendering', () => {
       patch(container, () => render(false));
       var outer = container.childNodes[0];
 
-      expect(outer.childNodes[1].getAttribute('data-foo')).to.be.null;
+      expect(outer.childNodes[1].getAttribute('data-foo')).to.equal(null);
     });
   });
 });

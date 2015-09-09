@@ -123,7 +123,7 @@ describe('attribute updates', () => {
       });
       var el = container.childNodes[0];
 
-      expect(el.hasAttribute('fn')).to.be.false;
+      expect(el.hasAttribute('fn')).to.equal(false);
     });
 
     it('should be set on the node', () => {
@@ -147,7 +147,7 @@ describe('attribute updates', () => {
       });
       var el = container.childNodes[0];
 
-      expect(el.hasAttribute('obj')).to.be.false;
+      expect(el.hasAttribute('obj')).to.equal(false);
     });
 
     it('should be set on the node', () => {
