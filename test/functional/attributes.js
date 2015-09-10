@@ -123,7 +123,7 @@ describe('attribute updates', () => {
       });
       var el = container.childNodes[0];
 
-      expect(el.hasAttribute('fn')).to.equal(false);
+      expect(el.getAttribute('fn')).not.to.equal(fn);
     });
 
     it('should be set on the node', () => {
@@ -147,7 +147,7 @@ describe('attribute updates', () => {
       });
       var el = container.childNodes[0];
 
-      expect(el.hasAttribute('obj')).to.equal(false);
+      expect(el.getAttribute('obj')).not.to.equal(obj);
     });
 
     it('should be set on the node', () => {
@@ -213,16 +213,18 @@ describe('attribute updates', () => {
     });
   });
 
-  describe('for svg elements', () => {
-    it('should correctly apply the class attribute', function() {
-      patch(container, () => {
-        elementVoid('svg', null, null,
-            'class', 'foo');
-      });
-      var el = container.childNodes[0];
+  if (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
+    describe('for svg elements', () => {
+      it('should correctly apply the class attribute', function() {
+        patch(container, () => {
+          elementVoid('svg', null, null,
+                      'class', 'foo');
+        });
+        var el = container.childNodes[0];
 
-      expect(el.getAttribute('class')).to.equal('foo');
+        expect(el.getAttribute('class')).to.equal('foo');
+      });
     });
-  });
+  }
 });
 

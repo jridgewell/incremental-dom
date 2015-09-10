@@ -25,7 +25,6 @@ import {
 
 describe('element creation', () => {
   var container;
-  var sandbox = sinon.sandbox.create();
 
   beforeEach(() => {
     container = document.createElement('div');
@@ -33,7 +32,6 @@ describe('element creation', () => {
   });
 
   afterEach(() => {
-    sandbox.restore();
     document.body.removeChild(container);
   });
 
@@ -125,21 +123,23 @@ describe('element creation', () => {
       });
 
       var el = container.childNodes[0];
-      expect(el.namespaceURI).to.equal('http://www.w3.org/1999/xhtml');
+      expect(el.namespaceURI).to.equal(container.namespaceURI);
     });
 
     it('should use createElement if no namespace has been specified', () => {
       var doc = container.ownerDocument;
       var div = doc.createElement('div');
-      sandbox.stub(doc, 'createElement').returns(div);
+      var createElement = doc.createElement;
+      doc.createElement = sandbox.stub().returns(div);
 
       patch(container, () => {
         elementVoid('div');
       });
 
       var el = container.childNodes[0];
-      expect(el.namespaceURI).to.equal('http://www.w3.org/1999/xhtml');
+      expect(el.namespaceURI).to.equal(container.namespaceURI);
       expect(doc.createElement).to.be.calledOnce();
+      doc.createElement = createElement;
     });
   });
 

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+var fs = require('fs');
+var babelrc = JSON.parse(fs.readFileSync('.babelrc', 'utf8'));
+babelrc.whitelist.push('es6.arrowFunctions', 'es6.modules');
+
 module.exports = function(config) {
   config.set({
     frameworks: ['browserify', 'mocha', 'sinon-expect'],
@@ -23,6 +27,7 @@ module.exports = function(config) {
     ],
 
     preprocessors: {
+      'index.js': ['browserify'],
       'src/**/*.js': ['browserify'],
       'test/**/*.js': ['browserify']
     },
@@ -30,7 +35,7 @@ module.exports = function(config) {
     browserify: {
       watch: true,
       debug: true,
-      transform: ['es6ify']
+      transform: [['babelify', babelrc]]
     },
 
     reporters: ['progress'],
