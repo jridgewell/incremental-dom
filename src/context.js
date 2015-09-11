@@ -25,111 +25,94 @@ import { notifications } from './notifications';
  * @param {?Context} prevContext The previous context.
  * @constructor
  */
-function Context(node, prevContext) {
-  /**
-   * @const {TreeWalker}
-   */
-  this.walker = new TreeWalker(node);
+class Context {
+  walker: TreeWalker;
+  doc: Document;
+  nsStack_: Array<?string>;
+  prevContext: Context;
+  created: ?Array<Node>;
+  deleted: ?Array<Node>;
+
+  constructor(node: Element|DocumentFragment, prevContext: Context) {
+    this.walker = new TreeWalker(node);
+    this.doc = node.ownerDocument;
+    this.nsStack_ = [];
+    this.prevContext = prevContext;
+    this.created = notifications.nodesCreated ? [] : null;
+    this.deleted = notifications.nodesDeleted ? [] : null;
+  }
 
   /**
-   * @const {Document}
+   * The current namespace to create Elements in.
    */
-  this.doc = node.ownerDocument;
+  getCurrentNamespace(): ?string {
+    return this.nsStack_[this.nsStack_.length - 1];
+  }
+
 
   /**
-   * Keeps track of what namespace to create new Elements in.
-   * @private
-   * @const {!Array<(string|undefined)>}
+   * Enters an Element namespace, so descending Elements are created
+   * in the same namespace.
    */
-  this.nsStack_ = [undefined];
+  enterNamespace(namespace: ?string) {
+    this.nsStack_.push(namespace);
+  }
+
 
   /**
-   * @const {?Context}
+   * Exits the current namespace
    */
-  this.prevContext = prevContext;
+  exitNamespace() {
+    this.nsStack_.pop();
+  }
+
 
   /**
-   * @type {(Array<!Node>|undefined)}
+   * Records the Node as being created for later notifications.
    */
-  this.created = notifications.nodesCreated && [];
+  markCreated(node: Node) {
+    if (this.created) {
+      this.created.push(node);
+    }
+  }
+
 
   /**
-   * @type {(Array<!Node>|undefined)}
+   * Records the Node as being deleted for later notifications.
    */
-  this.deleted = notifications.nodesDeleted && [];
+  markDeleted(node: Node) {
+    if (this.deleted) {
+      this.deleted.push(node);
+    }
+  }
+
+
+  /**
+   * Notifies about nodes that were created or deleted during the patch
+   * operation.
+   */
+  notifyChanges() {
+    if (this.created && this.created.length > 0) {
+      notifications.nodesCreated(this.created);
+    }
+
+    if (this.deleted && this.deleted.length > 0) {
+      notifications.nodesDeleted(this.deleted);
+    }
+  }
 }
 
 
 /**
- * @return {(string|undefined)} The current namespace to create Elements in.
- */
-Context.prototype.getCurrentNamespace = function() {
-  return this.nsStack_[this.nsStack_.length - 1];
-};
-
-
-/**
- * @param {string=} namespace The namespace to enter.
- */
-Context.prototype.enterNamespace = function(namespace) {
-  this.nsStack_.push(namespace);
-};
-
-
-/**
- * Exits the current namespace
- */
-Context.prototype.exitNamespace = function() {
-  this.nsStack_.pop();
-};
-
-
-/**
- * @param {!Node} node
- */
-Context.prototype.markCreated = function(node) {
-  if (this.created) {
-    this.created.push(node);
-  }
-};
-
-
-/**
- * @param {!Node} node
- */
-Context.prototype.markDeleted = function(node) {
-  if (this.deleted) {
-    this.deleted.push(node);
-  }
-};
-
-
-/**
- * Notifies about nodes that were created during the patch opearation.
- */
-Context.prototype.notifyChanges = function() {
-  if (this.created && this.created.length > 0) {
-    notifications.nodesCreated(this.created);
-  }
-
-  if (this.deleted && this.deleted.length > 0) {
-    notifications.nodesDeleted(this.deleted);
-  }
-};
-
-
-/**
  * The current context.
- * @type {?Context}
  */
-var context;
+var context: Context;
 
 
 /**
  * Enters a new patch context.
- * @param {!Element|!DocumentFragment} node
  */
-var enterContext = function(node) {
+var enterContext = function(node: Element|DocumentFragment) {
   context = new Context(node, context);
 };
 
@@ -146,7 +129,7 @@ var restoreContext = function() {
  * Gets the current patch context.
  * @return {?Context}
  */
-var getContext = function() {
+var getContext = function(): Context {
   return context;
 };
 

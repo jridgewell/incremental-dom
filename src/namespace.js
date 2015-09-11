@@ -21,9 +21,8 @@ var SVG_NS = 'http://www.w3.org/2000/svg';
 /**
  * Enters a tag, checking to see if it is a namespace boundary, and if so,
  * updates the current namespace.
- * @param {string} tag The tag to enter.
  */
-var enterTag = function(tag) {
+var enterTag = function(tag: string) {
   if (tag === 'svg') {
     getContext().enterNamespace(SVG_NS);
   } else if (tag === 'foreignObject') {
@@ -35,9 +34,8 @@ var enterTag = function(tag) {
 /**
  * Exits a tag, checking to see if it is a namespace boundary, and if so,
  * updates the current namespace.
- * @param {string} tag The tag to enter.
  */
-var exitTag = function(tag) {
+var exitTag = function(tag: string) {
   if (tag === 'svg' || tag === 'foreignObject') {
     getContext().exitNamespace();
   }
@@ -46,10 +44,8 @@ var exitTag = function(tag) {
 
 /**
  * Gets the namespace to create an element (of a given tag) in.
- * @param {string} tag The tag to get the namespace for.
- * @return {(string|undefined)} The namespace to create the tag in.
  */
-var getNamespaceForTag = function(tag) {
+var getNamespaceForTag = function(tag: string): ?string {
   if (tag === 'svg') {
     return SVG_NS;
   }

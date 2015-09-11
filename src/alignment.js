@@ -29,11 +29,8 @@ var dummy;
 if (process.env.NODE_ENV !== 'production') {
   /**
   * Makes sure that keyed Element matches the tag name provided.
-  * @param {!Element} node The node that is being matched.
-  * @param {string=} tag The tag name of the Element.
-  * @param {?string=} key The key of the Element.
   */
-  var assertKeyedTagMatches = function(node, tag, key) {
+  var assertKeyedTagMatches = function(node: Element, tag: string, key: ?string) {
     var nodeName = getData(node).nodeName;
     if (nodeName !== tag) {
       throw new Error('Was expecting node with key "' + key + '" to be a ' +
@@ -45,13 +42,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 /**
  * Checks whether or not a given node matches the specified nodeName and key.
- *
- * @param {!Node} node An HTML node, typically an HTMLElement or Text.
- * @param {?string} nodeName The nodeName for this node.
- * @param {?string=} key An optional key that identifies a node.
- * @return {boolean} True if the node matches, false otherwise.
  */
-var matches = function(node, nodeName, key) {
+var matches = function(node: Node, nodeName: string, key: ?string): boolean {
   var data = getData(node);
 
   // Key check is done using double equals as we want to treat a null key the
@@ -64,14 +56,8 @@ var matches = function(node, nodeName, key) {
 /**
  * Aligns the virtual Element definition with the actual DOM, moving the
  * corresponding DOM node to the correct location or creating it if necessary.
- * @param {string} nodeName For an Element, this should be a valid tag string.
- *     For a Text, this should be #text.
- * @param {?string=} key The key used to identify this element.
- * @param {?Array<*>=} statics For an Element, this should be an array of
- *     name-value pairs.
- * @return {!Node} The matching node.
  */
-var alignWithDOM = function(nodeName, key, statics) {
+var alignWithDOM = function(nodeName: string, key: ?string, statics: ?Array<any>): Node {
   var context = getContext();
   var walker = context.walker;
   var currentNode = walker.currentNode;
@@ -82,7 +68,10 @@ var alignWithDOM = function(nodeName, key, statics) {
   if (currentNode && matches(currentNode, nodeName, key)) {
     matchingNode = currentNode;
   } else {
-    var existingNode = getChild(parent, key);
+    var existingNode;
+    if (key) {
+      existingNode = getChild(parent, key);
+    }
 
     // Check to see if the node has moved within the parent or if a new one
     // should be created
@@ -123,9 +112,8 @@ var alignWithDOM = function(nodeName, key, statics) {
 /**
  * Clears out any unvisited Nodes, as the corresponding virtual element
  * functions were never called for them.
- * @param {Node} node
  */
-var clearUnvisitedDOM = function(node) {
+var clearUnvisitedDOM = function(node: Node) {
   var context = getContext();
   var data = getData(node);
   var keyMap = data.keyMap;
@@ -142,7 +130,7 @@ var clearUnvisitedDOM = function(node) {
 
   while (child !== lastVisitedChild) {
     node.removeChild(child);
-    context.markDeleted(/** @type {!Node}*/(child));
+    context.markDeleted(child);
 
     key = getData(child).key;
     if (key) {

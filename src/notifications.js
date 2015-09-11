@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
+type Notification = ?function(nodes: Array<Node>);
+
 /** */
-var notifications = {
+var notifications: { nodesCreated: Notification, nodesDeleted: Notification} = {
   /**
-   * Called after patch has compleated with any Nodes that have been created
+   * Called after patch has completed with any Nodes that have been created
    * and added to the DOM.
-   * @type {?function(Array<!Node>)}
    */
   nodesCreated: null,
 
   /**
-   * Called after patch has compleated with any Nodes that have been removed
+   * Called after patch has completed with any Nodes that have been removed
    * from the DOM.
    * Note it's an applications responsibility to handle any childNodes.
-   * @type {?function(Array<!Node>)}
    */
   nodesDeleted: null
 };

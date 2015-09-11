@@ -33,7 +33,7 @@ var dummy;
 
 
 if (process.env.NODE_ENV !== 'production') {
-  var assertNoUnclosedTags = function(root) {
+  var assertNoUnclosedTags = function(root: Node) {
     var openElement = getContext().walker.getCurrentParent();
     if (!openElement) {
       return;
@@ -54,14 +54,8 @@ if (process.env.NODE_ENV !== 'production') {
 /**
  * Patches the document starting at el with the provided function. This function
  * may be called during an existing patch operation.
- * @param {!Element|!DocumentFragment} node The Element or Document
- *     to patch.
- * @param {!function(T)} fn A function containing elementOpen/elementClose/etc.
- *     calls that describe the DOM.
- * @param {T=} data An argument passed to fn to represent DOM state.
- * @template T
  */
-var patch = function(node, fn, data) {
+var patch = function<T>(node: Element|DocumentFragment, fn: Function(data: T), data: T) {
   enterContext(node);
 
   firstChild();

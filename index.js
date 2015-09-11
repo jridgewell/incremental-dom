@@ -26,6 +26,5 @@ export {
   attr,
 } from './src/virtual_elements';
 export { symbols } from './src/symbols';
-export { mutators } from './src/mutators';
-export { defaults } from './src/defaults';
+export { attributes } from './src/attributes';
 export { notifications } from './src/notifications';

@@ -1,6 +1,8 @@
 {
   "loose": ["all"],
   "whitelist": [
+    "flow",
+    "es6.classes",
     "es6.properties.computed",
     "utility.inlineEnvironmentVariables"
   ],

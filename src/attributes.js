@@ -22,11 +22,8 @@ import { symbols } from './symbols';
  * Applies an attribute or property to a given Element. If the value is null
  * or undefined, it is removed from the Element. Otherwise, the value is set
  * as an attribute.
- * @param {!Element} el
- * @param {string} name The attribute's name.
- * @param {?(boolean|number|string)=} value The attribute's value.
  */
-var applyAttr = function(el, name, value) {
+var applyAttr = function(el: Element, name: string, value: ?(boolean|number|string)) {
   if (value == null) {
     el.removeAttribute(name);
   } else {
@@ -36,11 +33,8 @@ var applyAttr = function(el, name, value) {
 
 /**
  * Applies a property to a given Element.
- * @param {!Element} el
- * @param {string} name The property's name.
- * @param {*} value The property's value.
  */
-var applyProp = function(el, name, value) {
+var applyProp = function(el: Element, name: string, value: any) {
   el[name] = value;
 };
 
@@ -48,12 +42,8 @@ var applyProp = function(el, name, value) {
 /**
  * Applies a style to an Element. No vendor prefix expansion is done for
  * property names/values.
- * @param {!Element} el
- * @param {string} name The attribute's name.
- * @param {string|Object<string,string>} style The style to set. Either a
- *     string of css or an object containing property-value pairs.
  */
-var applyStyle = function(el, name, style) {
+var applyStyle = function(el: Element, name: string, style: ?(string|{[key: string]: string})) {
   if (typeof style === 'string') {
     el.style.cssText = style;
   } else {
@@ -68,30 +58,22 @@ var applyStyle = function(el, name, style) {
 
 /**
  * Updates a single attribute on an Element.
- * @param {!Element} el
- * @param {string} name The attribute's name.
- * @param {*} value The attribute's value. If the value is an object or
- *     function it is set on the Element, otherwise, it is set as an HTML
- *     attribute.
  */
-var applyAttributeTyped = function(el, name, value) {
+var applyAttributeTyped = function(el: Element, name: string, value: any) {
   var type = typeof value;
 
   if (type === 'object' || type === 'function') {
     applyProp(el, name, value);
   } else {
-    applyAttr(el, name, /** @type {?(boolean|number|string)} */(value));
+    applyAttr(el, name, value);
   }
 };
 
 
 /**
  * Calls the appropriate attribute mutator for this attribute.
- * @param {!Element} el
- * @param {string} name The attribute's name.
- * @param {*} value The attribute's value.
  */
-var updateAttribute = function(el, name, value) {
+var updateAttribute = function(el: Element, name: string, value: any) {
   var data = getData(el);
   var attrs = data.attrs;
 
@@ -109,9 +91,8 @@ var updateAttribute = function(el, name, value) {
 /**
  * Exposes our default attribute mutators publicly, so they may be used in
  * custom mutators.
- * @const {!Object<string, function(!Element, string, *)>}
  */
-var defaults = {
+var defaults: {[key: string]: Function(el: Element, name: string, value: any)} = {
   applyAttr: applyAttr,
   applyProp: applyProp,
   applyStyle: applyStyle
@@ -120,21 +101,19 @@ var defaults = {
 
 /**
  * A publicly mutable object to provide custom mutators for attributes.
- * @const {!Object<string, function(!Element, string, *)>}
  */
-var mutators = {
+var mutators: {[key: string]: Function(el: Element, name: string, value: any)} = {
   // Special generic mutator that's called for any attribute that does not
   // have a specific mutator.
   [symbols.all]: applyAttributeTyped,
 
   // Special case the style attribute
-  'style': applyStyle
+  style: applyStyle
 };
 
 
 /** */
 export {
   updateAttribute,
-  defaults,
-  mutators
+  attributes
 };

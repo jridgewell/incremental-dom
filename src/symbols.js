@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-var symbols = {
-  all: '__all'
+var symbols: {[key: string]: string} = {
+  all: '__all',
+  defaults: '__defaults'
 };
 
 /** */

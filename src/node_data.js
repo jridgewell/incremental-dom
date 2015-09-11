@@ -21,74 +21,70 @@
  * @param {?string=} key
  * @constructor
  */
-function NodeData(nodeName, key) {
-  /**
-   * The attributes and their values.
-   * @const
-   */
-  this.attrs = {};
+class NodeData {
+  attrs: {[key: string]: any};
+  attrsArr: Array<any>;
+  newAttrs: {[key: string]: any};
+  key: ?string;
+  keyMap: ?{[key: string]: Element};
+  keyMapValid: boolean;
+  lastVisitedChild: ?Node;
+  nodeName: string;
+  text: ?string;
 
-  /**
-   * An array of attribute name/value pairs, used for quickly diffing the
-   * incomming attributes to see if the DOM node's attributes need to be
-   * updated.
-   * @const {Array<*>}
-   */
-  this.attrsArr = [];
+  constructor(nodeName: string, key: ?string) {
+    /**
+     * The attributes and their values.
+     */
+    this.attrs = {};
 
-  /**
-   * The incoming attributes for this Node, before they are updated.
-   * @const {!Object<string, *>}
-   */
-  this.newAttrs = {};
+    /**
+     * An array of attribute name/value pairs, used for quickly diffing the
+     * incomming attributes to see if the DOM node's attributes need to be
+     * updated.
+     */
+    this.attrsArr = [];
 
-  /**
-   * The key used to identify this node, used to preserve DOM nodes when they
-   * move within their parent.
-   * @const
-   */
-  this.key = key;
+    /**
+     * The incoming attributes for this Node, before they are updated.
+     */
+    this.newAttrs = {};
 
-  /**
-   * Keeps track of children within this node by their key.
-   * {?Object<string, !Element>}
-   */
-  this.keyMap = null;
+    /**
+     * The key used to identify this node, used to preserve DOM nodes when they
+     * move within their parent.
+     */
+    this.key = key;
 
-  /**
-   * Whether or not the keyMap is currently valid.
-   * {boolean}
-   */
-  this.keyMapValid = true;
+    /**
+     * Keeps track of children within this node by their key.
+     */
+    this.keyMap = null;
 
-  /**
-   * The last child to have been visited within the current pass.
-   * @type {?Node}
-   */
-  this.lastVisitedChild = null;
+    /**
+     * Whether or not the keyMap is currently valid.
+     */
+    this.keyMapValid = true;
 
-  /**
-   * The node name for this node.
-   * @const {string}
-   */
-  this.nodeName = nodeName;
+    /**
+     * The last child to have been visited within the current pass.
+     */
+    this.lastVisitedChild = null;
 
-  /**
-   * @type {?string}
-   */
-  this.text = null;
+    /**
+     * The node name for this node.
+     */
+    this.nodeName = nodeName;
+
+    this.text = null;
+  }
 }
 
 
 /**
  * Initializes a NodeData object for a Node.
- *
- * @param {Node} node The node to initialize data for.
- * @param {string} nodeName The node name of node.
- * @param {?string=} key The key that identifies the node.
- * @return {!NodeData} The newly initialized data object
  */
-var initData = function(node, nodeName, key) {
+var initData = function(node: Node, nodeName: string, key: ?key): NodeData {
   var data = new NodeData(nodeName, key);
   node['__incrementalDOMData'] = data;
   return data;
@@ -97,11 +93,8 @@ var initData = function(node, nodeName, key) {
 
 /**
  * Retrieves the NodeData object for a Node, creating it if necessary.
- *
- * @param {Node} node The node to retrieve the data for.
- * @return {!NodeData} The NodeData for this Node.
  */
-var getData = function(node) {
+var getData = function(node: Node): NodeData {
   var data = node['__incrementalDOMData'];
 
   if (!data) {
