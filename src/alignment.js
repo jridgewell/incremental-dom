@@ -97,7 +97,7 @@ var alignWithDOM = function(nodeName, key, statics) {
         registerChild(parent, key, matchingNode);
       }
 
-      context.markCreated(matchingNode);
+      context.markCreated(matchingNode, nodeName, key);
     }
 
     // If the node has a key, remove it from the DOM to prevent a large number

@@ -55,10 +55,16 @@ function Context(node, prevContext) {
 
 /**
  * @param {!Node} node
+ * @param {!string} nodeName
+ * @param {?string} key
  */
-Context.prototype.markCreated = function(node) {
+Context.prototype.markCreated = function(node, nodeName, key) {
   if (this.created) {
-    this.created.push(node);
+    this.created.push({
+      node: node,
+      nodeName: nodeName,
+      key: key
+    });
   }
 };
 
