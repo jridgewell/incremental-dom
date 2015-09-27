@@ -29,9 +29,13 @@ var getNamespaceForTag = function(tag) {
     return SVG_NS;
   }
 
-  var walker = getContext().walker;
-  var parent = walker.getCurrentParent();
+  var context = getContext();
+  if (!context) {
+    return null;
+  }
 
+  var walker = context.walker;
+  var parent = walker.getCurrentParent();
   if (getData(parent).nodeName === 'foreignObject') {
     return null;
   }

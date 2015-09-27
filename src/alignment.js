@@ -45,7 +45,7 @@ if (process.env.NODE_ENV !== 'production') {
  * Checks whether or not a given node matches the specified nodeName and key.
  *
  * @param {!Node} node An HTML node, typically an HTMLElement or Text.
- * @param {?string} nodeName The nodeName for this node.
+ * @param {string} nodeName The nodeName for this node.
  * @param {?string=} key An optional key that identifies a node.
  * @return {boolean} True if the node matches, false otherwise.
  */

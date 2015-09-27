@@ -27,27 +27,16 @@ import { createMap } from './util';
  * Creates an Element.
  * @param {Document} doc The document with which to create the Element.
  * @param {string} tag The tag for the Element.
- * @param {?string=} key A key to identify the Element.
- * @param {?Array<*>=} statics An array of attribute name/value pairs of
- *     the static attributes for the Element.
  * @return {!Element}
  */
-var createElement = function(doc, tag, key, statics) {
-  var namespace = getNamespaceForTag(tag);
+var createElement = function(doc, tag) {
+  var namespace = nodes.getNamespaceForTag(tag);
   var el;
 
   if (namespace) {
     el = doc.createElementNS(namespace, tag);
   } else {
     el = doc.createElement(tag);
-  }
-
-  initData(el, tag, key);
-
-  if (statics) {
-    for (var i = 0; i < statics.length; i += 2) {
-      updateAttribute(el, /** @type {!string}*/(statics[i]), statics[i + 1]);
-    }
   }
 
   return el;
@@ -71,7 +60,16 @@ var createNode = function(doc, nodeName, key, statics) {
     return doc.createTextNode('');
   }
 
-  return createElement(doc, nodeName, key, statics);
+  var node = nodes.createElement(doc, nodeName);
+  initData(node, nodeName, key);
+
+  if (statics) {
+    for (var i = 0; i < statics.length; i += 2) {
+      updateAttribute(node, /** @type {!string}*/(statics[i]), statics[i + 1]);
+    }
+  }
+
+  return node;
 };
 
 
@@ -137,6 +135,16 @@ var getChild = function(parent, key) {
  */
 var registerChild = function(parent, key, child) {
   getKeyMap(parent)[key] = child;
+};
+
+
+/**
+ * A publicly mutable object to allow creating nodes with custom logic.
+ * @const {!Object<string, function>}
+ */
+var nodes = {
+  createElement: createElement,
+  getNamespaceForTag: getNamespaceForTag
 };
 
 
