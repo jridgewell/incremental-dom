@@ -97,7 +97,7 @@ var alignWithDOM = function(nodeName, key, statics) {
         registerChild(parent, key, matchingNode);
       }
 
-      context.markCreated(matchingNode, nodeName, key);
+      context.markCreated(matchingNode, parent, nodeName, key);
     }
 
     // If the node has a key, remove it from the DOM to prevent a large number
@@ -145,7 +145,7 @@ var clearUnvisitedDOM = function(node) {
 
   while (child !== lastVisitedChild) {
     node.removeChild(child);
-    context.markDeleted(/** @type {!Node}*/(child));
+    context.markDeleted(/** @type {!Node}*/(child), node);
 
     key = getData(child).key;
     if (key) {
@@ -158,7 +158,7 @@ var clearUnvisitedDOM = function(node) {
   for (key in keyMap) {
     child = keyMap[key];
     if (!child.parentNode) {
-      context.markDeleted(child);
+      context.markDeleted(child, node);
       delete keyMap[key];
     }
   }

@@ -42,12 +42,12 @@ function Context(node, prevContext) {
   this.prevContext = prevContext;
 
   /**
-   * @type {(Array<!Node>|undefined)}
+   * @type {?Array<{node: !Node, parent: !Node, tag: !string, key: ?string}>}
    */
   this.created = notifications.nodesCreated && [];
 
   /**
-   * @type {(Array<!Node>|undefined)}
+   * @type {?Array<{node: !Node, parent: !Node}>}
    */
   this.deleted = notifications.nodesDeleted && [];
 }
@@ -55,14 +55,16 @@ function Context(node, prevContext) {
 
 /**
  * @param {!Node} node
- * @param {!string} nodeName
- * @param {?string} key
+ * @param {!Node} parent
+ * @param {!string} tag
+ * @param {?string=} key
  */
-Context.prototype.markCreated = function(node, nodeName, key) {
+Context.prototype.markCreated = function(node, parent, tag, key) {
   if (this.created) {
     this.created.push({
       node: node,
-      nodeName: nodeName,
+      parent: parent,
+      tag: tag,
       key: key
     });
   }
@@ -71,10 +73,14 @@ Context.prototype.markCreated = function(node, nodeName, key) {
 
 /**
  * @param {!Node} node
+ * @param {!Node} parent
  */
-Context.prototype.markDeleted = function(node) {
+Context.prototype.markDeleted = function(node, parent) {
   if (this.deleted) {
-    this.deleted.push(node);
+    this.deleted.push({
+      node: node,
+      parent: parent
+    });
   }
 };
 

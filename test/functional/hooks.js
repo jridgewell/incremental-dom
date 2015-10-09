@@ -167,7 +167,7 @@ describe('library hooks', () => {
   describe('for being notified when nodes are created and added to DOM', () => {
     beforeEach(() => {
       notifications.nodesCreated = sandbox.spy((nodes)=> {
-        expect(nodes[0].parentNode).to.not.equal(null);
+        expect(nodes[0].node.parentNode).to.not.equal(null);
       });
     });
 
@@ -182,7 +182,12 @@ describe('library hooks', () => {
       var el = container.childNodes[0];
 
       expect(notifications.nodesCreated).to.have.been.calledOnce;
-      expect(notifications.nodesCreated).calledWith([el]);
+      expect(notifications.nodesCreated).calledWith([{
+        node: el,
+        parent: container,
+        key: 'key',
+        tag: 'div'
+      }]);
     });
 
     it('should be called for text', () => {
@@ -192,7 +197,12 @@ describe('library hooks', () => {
       var el = container.childNodes[0];
 
       expect(notifications.nodesCreated).to.have.been.calledOnce;
-      expect(notifications.nodesCreated).calledWith([el]);
+      expect(notifications.nodesCreated).calledWith([{
+        node: el,
+        parent: container,
+        key: null,
+        tag: '#text'
+      }]);
     });
   });
 
@@ -212,7 +222,7 @@ describe('library hooks', () => {
 
     beforeEach(() => {
       notifications.nodesDeleted = sandbox.spy((nodes)=> {
-        expect(nodes[0].parentNode).to.equal(null);
+        expect(nodes[0].node.parentNode).to.equal(null);
       });
     });
 
@@ -226,7 +236,10 @@ describe('library hooks', () => {
       patch(container, empty);
 
       expect(notifications.nodesDeleted).to.have.been.calledOnce;
-      expect(notifications.nodesDeleted).calledWith([el]);
+      expect(notifications.nodesDeleted).calledWith([{
+        node: el,
+        parent: container
+      }]);
     });
 
     it('should be called for detached text', () => {
@@ -235,7 +248,10 @@ describe('library hooks', () => {
       patch(container, empty);
 
       expect(notifications.nodesDeleted).to.have.been.calledOnce;
-      expect(notifications.nodesDeleted).calledWith([el]);
+      expect(notifications.nodesDeleted).calledWith([{
+        node: el,
+        parent: container
+      }]);
     });
 
     it('should be called for replaced element', () => {
@@ -244,7 +260,10 @@ describe('library hooks', () => {
       patch(container, render, true);
 
       expect(notifications.nodesDeleted).to.have.been.calledOnce;
-      expect(notifications.nodesDeleted).calledWith([el]);
+      expect(notifications.nodesDeleted).calledWith([{
+        node: el,
+        parent: container
+      }]);
     });
 
     it('should be called for removed text', () => {
@@ -253,7 +272,10 @@ describe('library hooks', () => {
       patch(container, render, false);
 
       expect(notifications.nodesDeleted).to.have.been.calledOnce;
-      expect(notifications.nodesDeleted).calledWith([el]);
+      expect(notifications.nodesDeleted).calledWith([{
+        node: el,
+        parent: container
+      }]);
     });
 
   });
