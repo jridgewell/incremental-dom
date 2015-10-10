@@ -30,7 +30,7 @@ import { createMap } from './util';
  * @return {!Element}
  */
 var createElement = function(doc, tag) {
-  var namespace = nodes.getNamespaceForTag(tag);
+  var namespace = nodes.namespaceForTag(tag);
   var el;
 
   if (namespace) {
@@ -144,7 +144,7 @@ var registerChild = function(parent, key, child) {
  */
 var nodes = {
   createElement: createElement,
-  getNamespaceForTag: getNamespaceForTag
+  namespaceForTag: getNamespaceForTag
 };
 
 
@@ -152,5 +152,6 @@ var nodes = {
 export {
   createNode,
   getChild,
-  registerChild
+  registerChild,
+  nodes
 };

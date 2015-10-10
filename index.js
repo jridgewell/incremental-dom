@@ -33,3 +33,4 @@ export {
   applyProp
 } from './src/attributes';
 export { notifications } from './src/notifications';
+export { nodes } from './src/nodes';
