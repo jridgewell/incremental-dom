@@ -23,7 +23,8 @@ import {
 } from '../../index';
 
 
-describe('library hooks', () => {
+describe('attribute hooks', () => {
+  var keys = Object.keys(attributes);
   var sandbox = sinon.sandbox.create();
   var container;
   var allSpy;
@@ -56,13 +57,11 @@ describe('library hooks', () => {
 
     afterEach(() => {
       for (var mutator in attributes) {
-        if (mutator !== symbols.default &&
-            mutator !== symbols.placeholder) {
+        if (keys.indexOf(mutator) === -1) {
           attributes[mutator] = null;
         }
       }
     });
-
 
     describe('for static attributes', () => {
       it('should call specific setter', () => {
