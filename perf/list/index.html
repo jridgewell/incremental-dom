@@ -1,5 +1,6 @@
 <html>
   <head>
+    <title>Map</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="../../dist/incremental-dom-min.js"></script>
     <script src="../exploration.js"></script>
@@ -31,10 +32,10 @@
 
     <script>
       (function() {
-        var patch = IncrementalDOM.patch;
-        var eo = IncrementalDOM.elementOpen;
-        var ec = IncrementalDOM.elementClose;
-        var tx = IncrementalDOM.text;
+        var patch = Exploration.patch;
+        var eo = Exploration.elementOpen;
+        var ec = Exploration.elementClose;
+        var tx = Exploration.text;
 
         var TESTS = [
           { name: 'selection', fn: Selection },
@@ -65,7 +66,7 @@
           currentRenderer = new ListRenderer(testContainer, impl.obj);
 
           running = true;
-          update(); 
+          update();
           run();
         }
 
@@ -81,9 +82,9 @@
           eo('div');
             IMPLS.forEach((impl) => {
               eo('button', null, null,
-                  'disabled', running || undefined,
-                  'aria-selected', currentImpl === impl,
-                  'onclick', () => setImpl(impl));
+                 {'disabled': running || undefined,
+                  'aria-selected': currentImpl === impl,
+                  'onclick': () => setImpl(impl)});
                 tx(impl.name);
               ec('button');
             });
@@ -92,9 +93,9 @@
           eo('div');
             TESTS.forEach((test) => {
               eo('button', null, null,
-                  'disabled', running || undefined,
-                  'aria-selected', currentTest === test,
-                  'onclick', () => setTest(test));
+                 {'disabled': running || undefined,
+                  'aria-selected': currentTest === test,
+                  'onclick': () => setTest(test)});
                 tx(test.name);
               ec('button');
             });
@@ -112,7 +113,7 @@
         function delay(time) {
           return new Promise((resolve) => setTimeout(resolve, time));
         }
-      
+
         function run() {
           delay(100)
             .then(() => currentTest.fn.run(currentRenderer))

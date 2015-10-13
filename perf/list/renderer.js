@@ -1,28 +1,28 @@
 (function(scope) {
 
-var listStatics = [
-  'id', 'list',
-  'role', 'list',
-];
-var itemStatics = [
-  'class', 'message',
-  'role', 'listitem',
-  'tabindex', '-1',
-];
-var checkboxStatics = [
- 'class', 'checkbox',
- 'role', 'checkbox',
- 'tabindex', '-1'
-];
-var starStatics = [
-  'class', 'star'
-];
-var senderStatics = [
-  'class', 'sender'
-];
-var subjectStatics = [
-  'class', 'subject'
-];
+var listStatics = {
+  id: 'list',
+  role: 'list',
+};
+var itemStatics = {
+  class: 'message',
+  role: 'listitem',
+  tabindex: '-1',
+};
+var checkboxStatics = {
+ class: 'checkbox',
+ role: 'checkbox',
+ tabindex: '-1'
+};
+var starStatics = {
+  class: 'star'
+};
+var senderStatics = {
+  class: 'sender'
+};
+var subjectStatics = {
+  class: 'subject'
+};
 
 function ListRenderer(container, lib) {
   var patch = lib.patch,
@@ -42,24 +42,24 @@ function ListRenderer(container, lib) {
       var isSelected = selectedKeys[item.key];
 
       elementOpen('div', item.key, itemStatics,
-            'aria-selected', isSelected);
-      
+                  {'aria-selected': isSelected});
+
         elementOpen('div', null, checkboxStatics,
-            'aria-checked', 'false');
+                    {'aria-checked': 'false'});
         elementClose('div');
 
         elementOpen('div', null, starStatics,
-            'data-starred', item.starred,
-            'aria-label', item.starred ? 'Starred' : 'Not Starred');
+                    {'data-starred': item.starred,
+            'aria-label': item.starred ? 'Starred' : 'Not Starred'});
         elementClose('div');
-        
+
         elementOpen('span', null, senderStatics,
-            'title', item.sender);
+                    {'title': item.sender});
           text(item.sender);
         elementClose('span');
 
         elementOpen('span', null, subjectStatics,
-            'title', item.subject);
+                    {'title': item.subject});
           text(item.subject);
         elementClose('span');
 
@@ -69,8 +69,8 @@ function ListRenderer(container, lib) {
 
       elementClose('div');
     }
-    
-    elementClose('div'); 
+
+    elementClose('div');
   }
 
   this.render = function(props) {

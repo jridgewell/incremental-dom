@@ -1,7 +1,7 @@
 (function(scope) {
-  var currentParent;
-  var currentNode;
-  var previousNode;
+  var currentParent = null;
+  var currentNode = null;
+  var previousNode = null;
 
   var NO_DATA = {
     key: null,
@@ -33,8 +33,7 @@
         nodeName: nodeName,
         key: key,
         keyMap: null,
-        attrsArr: [],
-        newAttrs: {}
+        attrs: Object.create(null)
       };
     }
   }
@@ -122,59 +121,45 @@
 
 
   hooks.elementCreated = function(el, statics) {
-    var arr = statics || [];
-    for (var i = 0; i < arr.length; i += 2) {
-      applyAttr(el, arr[i], arr[i + 1]);
+    for (var attr in statics) {
+      applyAttr(el, attr, statics[attr]);
     }
   };
 
   function applyAttr(el, name, value) {
-    if (value !== undefined) {
+    var type = typeof value;
+    if (type === 'object' || type === 'function') {
+      el[name] = value;
+    } else if (value !== undefined) {
       el.setAttribute(name, value);
     } else {
       el.removeAttribute(name);
     }
   }
 
-  function elementOpen(tagName, key, statics) {
+  var EMPTY_ATTRS = Object.create(null);
+  function elementOpen(tagName, key, statics, attributes) {
     var node = alignWithDom(tagName, key, statics);
     enterElement();
 
-    var attrsArr = node['__icData'].attrsArr;
-    var attrsChanged = false;
-    var i = 3;
-    var j = 0;
+    var attrs = node['__icData'].attrs;
+    var attr, value;
+    attributes = attributes || EMPTY_ATTRS;
 
-    for (; i < arguments.length; i += 1, j += 1) {
-      if (attrsArr[j] !== arguments[i]) {
-        attrsChanged = true;
-        break;
+    for (attr in attrs) {
+      value = attrs[attr]
+
+      if (value !== undefined && !(attr in attributes)) {
+        applyAttr(node, attr);
       }
     }
 
-    for (; i < arguments.length; i += 1, j += 1) {
-      attrsArr[j] = arguments[i];
-    }
+    for (attr in attributes) {
+      value = attributes[attr];
 
-    if (j < attrsArr.length) {
-      attrsChanged = true;
-      attrsArr.length = j;
-    }
-
-    if (attrsChanged) {
-      var attr;
-      var newAttrs = node['__icData'].newAttrs;
-
-      for (attr in newAttrs) {
-        newAttrs[attr] = undefined;
-      }
-
-      for (i = 3; i < arguments.length; i += 2) {
-        newAttrs[arguments[i]] = arguments[i + 1];
-      }
-
-      for (attr in newAttrs) {
-        applyAttr(node, attr, newAttrs[attr]);
+      if (attrs[attr] !== value) {
+        applyAttr(node, attr, value);
+        attrs[attr] = value;
       }
     }
   }
@@ -188,7 +173,7 @@
     elementOpen.apply(null, arguments);
     elementClose.apply(null, arguments);
   }
- 
+
   function text(value) {
     var node = alignWithDom('#text', null, null);
     skipNode();
