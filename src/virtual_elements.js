@@ -98,7 +98,19 @@ if (process.env.NODE_ENV !== 'production') {
 
     if (tag !== data.nodeName) {
       throw new Error('Received a call to close ' + tag + ' but ' +
-            data.nodeName + ' was open.');
+          data.nodeName + ' was open.');
+    }
+  };
+
+
+  /**
+   * Makes sure that two adjacent tag's static attributes are not confused.
+   */
+  var assertStaticsEqual = function(node, key, statics) {
+    var declaredStatics = getData(node).statics;
+    if (!key && declaredStatics !== statics) {
+      throw new Error('The static attributes array must be either the same' +
+          'array reference, or combined with a unique key.');
     }
   };
 
@@ -133,8 +145,15 @@ var elementOpen = function(tag, key, statics, var_args) {
     assertNotInAttributes();
   }
 
+  key = key || null;
+  statics = statics || null;
+
   var node = /** @type {!Element}*/(alignWithDOM(tag, key, statics));
   var data = getData(node);
+
+  if (process.env.NODE_ENV !== 'production') {
+    assertStaticsEqual(node, key, statics);
+  }
 
   /*
    * Checks to see if one or more attributes have changed for a given Element.

@@ -42,7 +42,11 @@ var createElement = function(doc, tag, key, statics) {
     el = doc.createElement(tag);
   }
 
-  initData(el, tag, key);
+  var data = initData(el, tag, key);
+
+  if (process.env.NODE_ENV !== 'production') {
+    data.statics = statics;
+  }
 
   if (statics) {
     for (var i = 0; i < statics.length; i += 2) {

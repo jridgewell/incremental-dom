@@ -79,6 +79,13 @@ function NodeData(nodeName, key) {
    * @type {?string}
    */
   this.text = null;
+
+  if (process.env.NODE_ENV !== 'production') {
+    /**
+     * @type {?Array<*>}
+     */
+    this.statics = null;
+  }
 }
 
 
