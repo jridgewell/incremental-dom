@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { TreeWalker } from './tree_walker';
 import {
   enterContext,
   restoreContext,
