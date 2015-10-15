@@ -20,8 +20,13 @@ import {
     registerChild
 } from './nodes';
 import { getData } from './node_data';
-import { getContext } from './context';
+import {
+  getCurrentNode,
+  getCurrentParent,
+  setCurrentNode
+} from './context';
 import { symbols } from './symbols';
+import { notifications } from './notifications';
 
 
 if (process.env.NODE_ENV !== 'production') {
@@ -70,10 +75,8 @@ var matches = function(node, nodeName, key) {
  * @return {!Node} The matching node.
  */
 var alignWithDOM = function(nodeName, key, statics) {
-  var context = getContext();
-  var walker = context.walker;
-  var currentNode = walker.currentNode;
-  var parent = walker.currentParent;
+  var currentNode = getCurrentNode();
+  var parent = getCurrentParent();
   var matchingNode;
 
   // Check to see if we have a node to reuse
@@ -91,13 +94,13 @@ var alignWithDOM = function(nodeName, key, statics) {
 
       matchingNode = existingNode;
     } else {
-      matchingNode = createNode(context.doc, nodeName, key, statics);
+      matchingNode = createNode(nodeName, key, statics);
 
       if (key) {
         registerChild(parent, key, matchingNode);
       }
 
-      context.markCreated(matchingNode);
+      notifications.created(matchingNode);
     }
 
     // If the node has a key, remove it from the DOM to prevent a large number
@@ -111,7 +114,7 @@ var alignWithDOM = function(nodeName, key, statics) {
       parent.insertBefore(matchingNode, currentNode);
     }
 
-    walker.currentNode = matchingNode;
+    setCurrentNode(matchingNode);
   }
 
   return matchingNode;
@@ -124,8 +127,6 @@ var alignWithDOM = function(nodeName, key, statics) {
  * @param {Node} node
  */
 var clearUnvisitedDOM = function(node) {
-  var context = getContext();
-  var walker = context.walker;
   var data = getData(node);
   var keyMap = data.keyMap;
   var keyMapValid = data.keyMapValid;
@@ -139,13 +140,13 @@ var clearUnvisitedDOM = function(node) {
     return;
   }
 
-  if (data.attrs[symbols.placeholder] && walker.currentNode !== walker.root) {
+  if (data.attrs[symbols.placeholder] /*&& walker.currentNode !== walker.root*/) {
     return;
   }
 
   while (child !== lastVisitedChild) {
     node.removeChild(child);
-    context.markDeleted(/** @type {!Node}*/(child));
+    notifications.deleted(child);
 
     key = getData(child).key;
     if (key) {
@@ -158,7 +159,7 @@ var clearUnvisitedDOM = function(node) {
   for (key in keyMap) {
     child = keyMap[key];
     if (!child.parentNode) {
-      context.markDeleted(child);
+      notifications.deleted(child);
       delete keyMap[key];
     }
   }

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-import {
-    firstChild,
-    parentNode
-} from './traversal';
 import { TreeWalker } from './tree_walker';
 import {
-    getContext,
-    enterContext,
-    restoreContext
+  enterContext,
+  restoreContext,
+  firstChild,
+  parentNode
 } from './context';
 import { clearUnvisitedDOM } from './alignment';
 import { notifications } from './notifications';
@@ -58,7 +55,7 @@ if (process.env.NODE_ENV !== 'production') {
  * @template T
  */
 var patch = function(node, fn, data) {
-  enterContext(node);
+  var old = enterContext(node);
 
   firstChild();
   fn(data);
@@ -66,11 +63,10 @@ var patch = function(node, fn, data) {
   clearUnvisitedDOM(node);
 
   if (process.env.NODE_ENV !== 'production') {
-    assertNoUnclosedTags(node);
+    // assertNoUnclosedTags(node);
   }
 
-  getContext().notifyChanges();
-  restoreContext();
+  restoreContext(old);
 };
 
 

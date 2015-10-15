@@ -21,7 +21,7 @@ var notifications = {
    * and added to the DOM.
    * @type {?function(Array<!Node>)}
    */
-  nodesCreated: null,
+  created: function(node) {},
 
   /**
    * Called after patch has compleated with any Nodes that have been removed
@@ -29,7 +29,7 @@ var notifications = {
    * Note it's an applications responsibility to handle any childNodes.
    * @type {?function(Array<!Node>)}
    */
-  nodesDeleted: null
+  deleted: function(node) {}
 };
 
 export {

@@ -21,19 +21,20 @@ import {
 } from './node_data';
 import { getNamespaceForTag } from './namespace';
 import { createMap } from './util';
+import { getDoc } from './context';
 
 
 /**
  * Creates an Element.
- * @param {Document} doc The document with which to create the Element.
  * @param {string} tag The tag for the Element.
  * @param {?string=} key A key to identify the Element.
  * @param {?Array<*>=} statics An array of attribute name/value pairs of
  *     the static attributes for the Element.
  * @return {!Element}
  */
-var createElement = function(doc, tag, key, statics) {
+var createElement = function(tag, key, statics) {
   var namespace = getNamespaceForTag(tag);
+  var doc = getDoc();
   var el;
 
   if (namespace) {
@@ -66,12 +67,12 @@ var createElement = function(doc, tag, key, statics) {
  *     the static attributes for the Element.
  * @return {!Node}
  */
-var createNode = function(doc, nodeName, key, statics) {
+var createNode = function(nodeName, key, statics) {
   if (nodeName === '#text') {
-    return doc.createTextNode('');
+    return getDoc().createTextNode('');
   }
 
-  return createElement(doc, nodeName, key, statics);
+  return createElement(nodeName, key, statics);
 };
 
 

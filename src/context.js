@@ -14,77 +14,8 @@
  * limitations under the License.
  */
 
-import { TreeWalker } from './tree_walker';
 import { notifications } from './notifications';
-
-
-/**
- * Keeps track of the state of a patch.
- * @param {!Element|!DocumentFragment} node The root Node of the subtree the
- *     is for.
- * @param {?Context} prevContext The previous context.
- * @constructor
- */
-function Context(node, prevContext) {
-  /**
-   * @const {TreeWalker}
-   */
-  this.walker = new TreeWalker(node);
-
-  /**
-   * @const {Document}
-   */
-  this.doc = node.ownerDocument;
-
-  /**
-   * @const {?Context}
-   */
-  this.prevContext = prevContext;
-
-  /**
-   * @type {(Array<!Node>|undefined)}
-   */
-  this.created = notifications.nodesCreated && [];
-
-  /**
-   * @type {(Array<!Node>|undefined)}
-   */
-  this.deleted = notifications.nodesDeleted && [];
-}
-
-
-/**
- * @param {!Node} node
- */
-Context.prototype.markCreated = function(node) {
-  if (this.created) {
-    this.created.push(node);
-  }
-};
-
-
-/**
- * @param {!Node} node
- */
-Context.prototype.markDeleted = function(node) {
-  if (this.deleted) {
-    this.deleted.push(node);
-  }
-};
-
-
-/**
- * Notifies about nodes that were created during the patch opearation.
- */
-Context.prototype.notifyChanges = function() {
-  if (this.created && this.created.length > 0) {
-    notifications.nodesCreated(this.created);
-  }
-
-  if (this.deleted && this.deleted.length > 0) {
-    notifications.nodesDeleted(this.deleted);
-  }
-};
+import { getData } from './node_data';
 
 
 /**
@@ -93,30 +24,85 @@ Context.prototype.notifyChanges = function() {
  */
 var context;
 
+var doc;
+var currentNode;
+var currentParent;
+var previousNode;
+
+/**
+ * Changes to the first child of the current node.
+ */
+var firstChild = function() {
+  previousNode = null;
+  currentParent = currentNode;
+  currentNode = currentNode.firstChild;
+};
+
+
+/**
+ * Changes to the next sibling of the current node.
+ */
+var nextSibling = function() {
+  previousNode = currentNode;
+  currentNode = currentNode.nextSibling;
+};
+
+
+/**
+ * Changes to the parent of the current node, removing any unvisited children.
+ */
+var parentNode = function() {
+  getData(currentParent).lastVisitedChild = previousNode;
+  previousNode = currentParent;
+  currentNode = currentParent;
+  currentParent = currentParent.parentNode;
+};
+
+var getCurrentNode = function() {
+  return currentNode;
+}
+
+var getDoc = function() {
+  return doc;
+}
+
+var getCurrentParent = function() {
+  return currentParent;
+}
+
+var setCurrentNode = function(node) {
+  currentNode = node;
+}
 
 /**
  * Enters a new patch context.
  * @param {!Element|!DocumentFragment} node
  */
 var enterContext = function(node) {
-  context = new Context(node, context);
+  var old = {
+    previousNode: previousNode,
+    currentParent: currentParent,
+    currentNode: currentNode,
+    doc: doc
+  };
+
+  previousNode = null;
+  currentParent = null;
+  currentNode = node;
+  doc = node.ownerDocument;
+
+  return old;
 };
 
 
 /**
  * Restores the previous patch context.
  */
-var restoreContext = function() {
-  context = context.prevContext;
-};
-
-
-/**
- * Gets the current patch context.
- * @return {?Context}
- */
-var getContext = function() {
-  return context;
+var restoreContext = function(old) {
+  previousNode = old.previousNode;
+  currentParent = old.currentParent;
+  currentNode = old.currentNode;
+  doc = old.doc;
 };
 
 
@@ -124,5 +110,11 @@ var getContext = function() {
 export {
   enterContext,
   restoreContext,
-  getContext
+  firstChild,
+  nextSibling,
+  parentNode,
+  getCurrentNode,
+  getDoc,
+  getCurrentParent,
+  setCurrentNode
 };

@@ -20,12 +20,12 @@ import {
 } from './alignment';
 import { updateAttribute } from './attributes';
 import { getData } from './node_data';
-import { getContext } from './context';
 import {
-    firstChild,
-    nextSibling,
-    parentNode
-} from './traversal';
+  firstChild,
+  nextSibling,
+  parentNode,
+  getCurrentNode
+} from './context';
 import { symbols } from './symbols';
 
 
@@ -254,16 +254,14 @@ var elementOpenEnd = function() {
 var elementClose = function(tag) {
   if (process.env.NODE_ENV !== 'production') {
     assertNotInAttributes();
-    assertCloseMatchesOpenTag(tag);
+    // assertCloseMatchesOpenTag(tag);
   }
-
   parentNode();
-
-  var node = /** @type {!Element} */(getContext().walker.currentNode);
+  var node = getCurrentNode();
 
   clearUnvisitedDOM(node);
-
   nextSibling();
+
   return node;
 };
 

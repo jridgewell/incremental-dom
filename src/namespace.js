@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getContext } from './context';
+import { getCurrentParent } from './context';
 import { getData } from './node_data';
 
 var SVG_NS = 'http://www.w3.org/2000/svg';
@@ -29,8 +29,7 @@ var getNamespaceForTag = function(tag) {
     return SVG_NS;
   }
 
-  var walker = getContext().walker;
-  var parent = walker.currentParent;
+  var parent = getCurrentParent();
 
   if (getData(parent).nodeName === 'foreignObject') {
     return null;
