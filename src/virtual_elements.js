@@ -27,6 +27,13 @@ import {
     parentNode
 } from './traversal';
 import { symbols } from './symbols';
+import {
+  assertNotInAttributes,
+  assertInAttributes,
+  assertPlaceholderKeySpecified,
+  assertCloseMatchesOpenTag,
+  setInAttributes
+} from './assertions';
 
 
 /**
@@ -45,77 +52,6 @@ var ATTRIBUTES_OFFSET = 3;
 var argsBuilder = [];
 
 
-if (process.env.NODE_ENV !== 'production') {
-  /**
-   * Keeps track whether or not we are in an attributes declaration (after
-   * elementOpenStart, but before elementOpenEnd).
-   * @type {boolean}
-   */
-  var inAttributes = false;
-
-
-  /** Makes sure that the caller is not where attributes are expected. */
-  var assertNotInAttributes = function() {
-    if (inAttributes) {
-      throw new Error('Was not expecting a call to attr or elementOpenEnd, ' +
-          'they must follow a call to elementOpenStart.');
-    }
-  };
-
-
-  /** Makes sure that the caller is where attributes are expected. */
-  var assertInAttributes = function() {
-    if (!inAttributes) {
-      throw new Error('Was expecting a call to attr or elementOpenEnd. ' +
-          'elementOpenStart must be followed by zero or more calls to attr, ' +
-          'then one call to elementOpenEnd.');
-    }
-  };
-
-
-  /**
-   * Makes sure that placeholders have a key specified. Otherwise, conditional
-   * placeholders and conditional elements next to placeholders will cause
-   * placeholder elements to be re-used as non-placeholders and vice versa.
-   * @param {string} key
-   */
-  var assertPlaceholderKeySpecified = function(key) {
-    if (!key) {
-      throw new Error('Placeholder elements must have a key specified.');
-    }
-  };
-
-
-  /**
-   * Makes sure that tags are correctly nested.
-   * @param {string} tag
-   */
-  var assertCloseMatchesOpenTag = function(tag) {
-    var context = getContext();
-    var walker = context.walker;
-    var closingNode = walker.currentParent;
-    var data = getData(closingNode);
-
-    if (tag !== data.nodeName) {
-      throw new Error('Received a call to close ' + tag + ' but ' +
-            data.nodeName + ' was open.');
-    }
-  };
-
-
-  /** Updates the state to being in an attribute declaration. */
-  var setInAttributes = function() {
-    inAttributes = true;
-  };
-
-
-  /** Updates the state to not being in an attribute declaration. */
-  var setNotInAttributes = function() {
-    inAttributes = false;
-  };
-}
-
-
 /**
  * @param {string} tag The element's tag.
  * @param {?string=} key The key used to identify this element. This can be an
@@ -130,7 +66,7 @@ if (process.env.NODE_ENV !== 'production') {
  */
 var elementOpen = function(tag, key, statics, var_args) {
   if (process.env.NODE_ENV !== 'production') {
-    assertNotInAttributes();
+    assertNotInAttributes('elementOpen');
   }
 
   var node = /** @type {!Element}*/(alignWithDOM(tag, key, statics));
@@ -199,8 +135,8 @@ var elementOpen = function(tag, key, statics, var_args) {
  */
 var elementOpenStart = function(tag, key, statics) {
   if (process.env.NODE_ENV !== 'production') {
-    assertNotInAttributes();
-    setInAttributes();
+    assertNotInAttributes('elementOpenStart');
+    setInAttributes(true);
   }
 
   argsBuilder[0] = tag;
@@ -218,7 +154,7 @@ var elementOpenStart = function(tag, key, statics) {
  */
 var attr = function(name, value) {
   if (process.env.NODE_ENV !== 'production') {
-    assertInAttributes();
+    assertInAttributes('attr');
   }
 
   argsBuilder.push(name, value);
@@ -231,8 +167,8 @@ var attr = function(name, value) {
  */
 var elementOpenEnd = function() {
   if (process.env.NODE_ENV !== 'production') {
-    assertInAttributes();
-    setNotInAttributes();
+    assertInAttributes('elementOpenEnd');
+    setInAttributes(false);
   }
 
   var node = elementOpen.apply(null, argsBuilder);
@@ -249,13 +185,15 @@ var elementOpenEnd = function() {
  */
 var elementClose = function(tag) {
   if (process.env.NODE_ENV !== 'production') {
-    assertNotInAttributes();
-    assertCloseMatchesOpenTag(tag);
+    assertNotInAttributes('elementClose');
   }
 
   parentNode();
-
   var node = /** @type {!Element} */(getContext().walker.currentNode);
+
+  if (process.env.NODE_ENV !== 'production') {
+    assertCloseMatchesOpenTag(getData(node).nodeName, tag);
+  }
 
   clearUnvisitedDOM(node);
 
@@ -325,7 +263,7 @@ var elementPlaceholder = function(tag, key, statics, var_args) {
  */
 var text = function(value, var_args) {
   if (process.env.NODE_ENV !== 'production') {
-    assertNotInAttributes();
+    assertNotInAttributes('text');
   }
 
   var node = /** @type {!Text}*/(alignWithDOM('#text', null));

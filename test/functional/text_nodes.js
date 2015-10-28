@@ -52,6 +52,15 @@ describe('text nodes', () => {
 
       expect(container.textContent).to.equal('Hello World!');
     });
+
+    it('should throw when inside virtual element', () => {
+      expect(() => {
+        patch(container, () => {
+          elementOpenStart('div');
+          text('Hello');
+        });
+      }).to.throw(Error);
+    });
   });
 
   describe('with conditional text', () => {

@@ -16,6 +16,10 @@
 
 import { TreeWalker } from './tree_walker';
 import { notifications } from './notifications';
+import {
+  assertInPatch,
+  assertNotInAttributes
+} from './assertions';
 
 
 /**
@@ -97,9 +101,11 @@ var context;
 /**
  * Enters a new patch context.
  * @param {!Element|!DocumentFragment} node
+ * @return {!Context}
  */
 var enterContext = function(node) {
   context = new Context(node, context);
+  return context;
 };
 
 
@@ -124,8 +130,9 @@ var getContext = function() {
  * @return {!Node}
  */
 var currentElement = function() {
-  if (process.env.NODE_ENV !== 'production' && !context) {
-    throw new Error('cannot call currentElement() while not in patch');
+  if (process.env.NODE_ENV !== 'production') {
+    assertInPatch(context);
+    assertNotInAttributes('currentElement');
   }
   return context.walker.currentParent;
 };

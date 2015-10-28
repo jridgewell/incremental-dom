@@ -20,31 +20,15 @@ import {
 } from './traversal';
 import { TreeWalker } from './tree_walker';
 import {
-    getContext,
     enterContext,
     restoreContext
 } from './context';
 import { clearUnvisitedDOM } from './alignment';
 import { notifications } from './notifications';
-
-
-if (process.env.NODE_ENV !== 'production') {
-  var assertNoUnclosedTags = function(root) {
-    var openElement = getContext().walker.currentNode;
-    if (openElement === root) {
-      return;
-    }
-
-    var openTags = [];
-    while (openElement && openElement !== root) {
-      openTags.push(openElement.nodeName.toLowerCase());
-      openElement = openElement.parentNode;
-    }
-
-    throw new Error('One or more tags were not closed:\n' +
-        openTags.join('\n'));
-  };
-}
+import {
+  assertNoUnclosedTags,
+  setInAttributes
+} from './assertions';
 
 
 /**
@@ -58,18 +42,26 @@ if (process.env.NODE_ENV !== 'production') {
  * @template T
  */
 var patch = function(node, fn, data) {
-  enterContext(node);
+  var context = enterContext(node);
 
   firstChild();
-  fn(data);
+  if (process.env.NODE_ENV !== 'production') {
+    try {
+      fn(data);
+    } finally {
+      setInAttributes(false);
+    }
+  } else {
+    fn(data);
+  }
   parentNode();
   clearUnvisitedDOM(node);
 
   if (process.env.NODE_ENV !== 'production') {
-    assertNoUnclosedTags(node);
+    assertNoUnclosedTags(context.walker.currentNode, node);
   }
 
-  getContext().notifyChanges();
+  context.notifyChanges();
   restoreContext();
 };
 
