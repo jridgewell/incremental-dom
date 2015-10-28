@@ -15,13 +15,13 @@
  */
 
 import {
-    patch,
-    elementOpen,
-    elementOpenStart,
-    elementOpenEnd,
-    elementClose,
-    elementVoid,
-    text
+  patch,
+  elementOpen,
+  elementOpenStart,
+  elementOpenEnd,
+  elementClose,
+  elementVoid,
+  text
 } from '../../index';
 
 
