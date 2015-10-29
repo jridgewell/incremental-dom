@@ -16,6 +16,8 @@
 
 import {
   patch,
+  elementOpen,
+  elementClose,
   elementVoid
 } from '../../index';
 
@@ -155,6 +157,33 @@ describe('rendering with keys', () => {
     expect(() => {
       patch(container, render, 'span');
     }).to.throw(Error);
+  });
+
+  it('should throw when a duplicate key is specified', () => {
+    expect(() => {
+      patch(container, render, [
+        { key: 'key' },
+        { key: 'key' }
+      ]);
+    }).to.throw(Error);
+  });
+
+  it('should not throw when a duplicate key is used in a separate patch', () => {
+    function render(before) {
+      var el = elementOpen('div');
+        if (before) {
+          elementVoid('div', 'key');
+        }
+        patch(el, () => {
+          elementVoid('div', 'key')
+        });
+        if (!before) {
+          elementVoid('div', 'key');
+        }
+      elementClose('div');
+    }
+    patch(container, render, true);
+    patch(container, render, false);
   });
 });
 

@@ -20,7 +20,11 @@ import {
     initData
 } from './node_data';
 import { getNamespaceForTag } from './namespace';
-import { createMap } from './util';
+import {
+  createMap,
+  KeySet
+} from './util';
+import { assertUniqueKey } from './assertions';
 
 
 /**
@@ -143,9 +147,40 @@ var registerChild = function(parent, key, child) {
 };
 
 
+/**
+ * Asserts that the key has not yet been used for this parent in this patch.
+ * @param {!Node} parent the parent node which contains the keyed element.
+ * @param {string} key the key to use.
+ */
+var useKey = function(parent, key) {
+  var data = getData(parent);
+  if (!data.usedKeys) {
+    data.usedKeys = createMap();
+  }
+  var usedKeys = data.usedKeys;
+
+  assertUniqueKey(key, usedKeys);
+  usedKeys[key] = true;
+};
+
+
+/**
+ * Resets the currently used keys for the next patch.
+ * @param {!Node} parent the parent to clear keys from.
+ */
+var clearUsedKeys = function(parent) {
+  var usedKeys = getData(parent).usedKeys;
+  for (var key in usedKeys) {
+    delete usedKeys[key];
+  }
+};
+
+
 /** */
 export {
   createNode,
   getChild,
-  registerChild
+  registerChild,
+  useKey,
+  clearUsedKeys
 };

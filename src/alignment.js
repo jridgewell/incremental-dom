@@ -17,7 +17,8 @@
 import {
     createNode,
     getChild,
-    registerChild
+    registerChild,
+    useKey
 } from './nodes';
 import { getData } from './node_data';
 import { getContext } from './context';
@@ -59,6 +60,10 @@ var alignWithDOM = function(nodeName, key, statics) {
   var currentNode = walker.currentNode;
   var parent = walker.currentParent;
   var matchingNode;
+
+  if (process.env.NODE_ENV !== 'production' && key) {
+    useKey(parent, key);
+  }
 
   // Check to see if we have a node to reuse
   if (currentNode && matches(currentNode, nodeName, key)) {

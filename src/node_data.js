@@ -79,6 +79,10 @@ function NodeData(nodeName, key) {
    * @type {?string}
    */
   this.text = null;
+
+  if (process.env.NODE_ENV !== 'production') {
+    this.usedKeys = null;
+  }
 }
 
 

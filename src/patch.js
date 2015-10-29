@@ -29,6 +29,7 @@ import {
   assertNoUnclosedTags,
   setInAttributes
 } from './assertions';
+import { clearUsedKeys } from './nodes';
 
 
 /**
@@ -46,6 +47,7 @@ var patch = function(node, fn, data) {
 
   firstChild();
   if (process.env.NODE_ENV !== 'production') {
+    clearUsedKeys(node);
     try {
       fn(data);
     } finally {
@@ -58,6 +60,7 @@ var patch = function(node, fn, data) {
   clearUnvisitedDOM(node);
 
   if (process.env.NODE_ENV !== 'production') {
+    clearUsedKeys(node);
     assertNoUnclosedTags(context.walker.currentNode, node);
   }
 

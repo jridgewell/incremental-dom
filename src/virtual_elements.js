@@ -37,6 +37,7 @@ import {
   assertCloseMatchesOpenTag,
   setInAttributes
 } from './assertions';
+import { clearUsedKeys } from './nodes';
 
 
 /**
@@ -86,6 +87,10 @@ var elementOpen = function(tag, key, statics, var_args) {
 
   var node = /** @type {!Element}*/(alignWithDOM(tag, key, statics));
   var data = getData(node);
+
+  if (process.env.NODE_ENV !== 'production') {
+    clearUsedKeys(node);
+  }
 
   /*
    * Checks to see if one or more attributes have changed for a given Element.
@@ -211,6 +216,9 @@ var elementClose = function(tag) {
   }
 
   clearUnvisitedDOM(node);
+  if (process.env.NODE_ENV !== 'production') {
+    clearUsedKeys(node);
+  }
 
   nextSibling();
   return node;
