@@ -16,7 +16,10 @@
 
 import { TreeWalker } from './tree_walker';
 import { notifications } from './notifications';
-import { assertInPatch } from './assertions';
+import {
+  assertInPatch,
+  assertNotInAttributes
+} from './assertions';
 
 
 /**
@@ -130,6 +133,7 @@ var getContext = function() {
 var currentElement = function() {
   if (process.env.NODE_ENV !== 'production') {
     assertInPatch(context);
+    assertNotInAttributes('currentElement');
   }
   return context.walker.currentParent;
 };
