@@ -37,7 +37,7 @@ describe('virtual attribute updates', () => {
   });
 
   describe('for conditional attributes', () => {
-    function render(obj) {  
+    function render(obj) {
       elementOpenStart('div', '', []);
         if (obj.key) {
           attr('data-expanded', obj.key);
@@ -75,7 +75,49 @@ describe('virtual attribute updates', () => {
 
       expect(el.getAttribute('data-expanded')).to.equal('bar');
     });
+
+    it('should throw when defined outside virtual element', () => {
+      expect(() => {
+        patch(container, () => {
+          attr('data-expanded', true);
+        });
+      }).to.throw(Error);
+    });
   });
 
+  it('should throw when virtual element is closed without being opened', () => {
+    expect(() => {
+      patch(container, () => {
+        elementOpenEnd('div');
+      });
+    }).to.throw(Error);
+  });
+
+  it('should throw when opening an element inside a virtual element', () => {
+    expect(() => {
+      patch(container, () => {
+        elementOpenStart('div');
+        elementOpen('div');
+      });
+    }).to.throw(Error);
+  });
+
+  it('should throw when opening a virtual element inside a virtual element', () => {
+    expect(() => {
+      patch(container, () => {
+        elementOpenStart('div');
+        elementOpenStart('div');
+      });
+    }).to.throw(Error);
+  });
+
+  it('should throw when closing an element inside a virtual element', () => {
+    expect(() => {
+      patch(container, () => {
+        elementOpenStart('div');
+        elementClose('div');
+      });
+    }).to.throw(Error);
+  });
 });
 

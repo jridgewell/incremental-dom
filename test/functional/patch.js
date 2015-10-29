@@ -136,6 +136,14 @@ describe('patching an element', () => {
 
     expect(container.textContent).to.equal('foobar');
   });
+
+  it('should throw when an element is unclosed', function() {
+    expect(() => {
+      patch(container, () => {
+        elementOpen('div');
+      });
+    }).to.throw(Error);
+  });
 });
 
 describe('patching a documentFragment', function() {
