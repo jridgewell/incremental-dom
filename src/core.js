@@ -26,7 +26,8 @@ import {
   assertInPatch,
   assertKeyedTagMatches,
   assertNoUnclosedTags,
-  setInAttributes
+  setInAttributes,
+  getInAttributes
 } from './assertions';
 import { notifications } from './notifications';
 
@@ -66,15 +67,18 @@ var patch = function(node, fn, data) {
   previousNode = null;
 
   if (process.env.NODE_ENV !== 'production') {
+    var prevInAttributes = getInAttributes();
     setInAttributes(false);
   }
 
   enterNode();
   fn(data);
+  clearUnvisitedDOM();
   exitNode();
 
   if (process.env.NODE_ENV !== 'production') {
     assertNoUnclosedTags(previousNode, node);
+    setInAttributes(prevInAttributes);
   }
 
   context.notifyChanges();
@@ -118,17 +122,16 @@ var alignWithDOM = function(nodeName, key, statics) {
     return;
   }
 
-  var existingNode = getChild(currentParent, key);
   var matchingNode;
+
+  if (key) {
+    matchingNode = getChild(currentParent, key);
+  }
 
   // Check to see if the node has moved within the parent or if a new one
   // should be created
-  if (existingNode) {
-    if (process.env.NODE_ENV !== 'production') {
-      assertKeyedTagMatches(getData(existingNode).nodeName, nodeName, key);
-    }
-
-    matchingNode = existingNode;
+  if (matchingNode && process.env.NODE_ENV !== 'production') {
+    assertKeyedTagMatches(getData(matchingNode).nodeName, nodeName, key);
   } else {
     matchingNode = createNode(
         context.doc,
@@ -191,15 +194,17 @@ var clearUnvisitedDOM = function() {
   }
 
   // Clean the keyMap, removing any unusued keys.
-  for (key in keyMap) {
-    child = keyMap[key];
-    if (!child.parentNode) {
-      context.markDeleted(child);
-      delete keyMap[key];
+  if (!keyMapValid) {
+    for (key in keyMap) {
+      child = keyMap[key];
+      if (child.parentNode !== node) {
+        context.markDeleted(child);
+        delete keyMap[key];
+      }
     }
-  }
 
-  data.keyMapValid = true;
+    data.keyMapValid = true;
+  }
 };
 
 
@@ -226,11 +231,9 @@ var nextNode = function() {
  * Changes to the parent of the current node, removing any unvisited children.
  */
 var exitNode = function() {
-  clearUnvisitedDOM();
-
-  previousNode = currentParent;
-  currentNode = currentParent.nextSibling;
+  currentNode = currentParent;
   currentParent = currentParent.parentNode;
+  nextNode();
 };
 
 
@@ -261,6 +264,7 @@ var elementOpen = function(tag, key, statics) {
  * @return {!Element} The corresponding Element.
  */
 var elementClose = function() {
+  clearUnvisitedDOM();
   exitNode();
   return /** @type {!Element} */(previousNode);
 };
