@@ -21,7 +21,9 @@ import {
 } from './nodes';
 import {
   getData,
-  getOrCreateData
+  getKey,
+  getNodeName,
+  ensureData
 } from './node_data';
 import { Context } from './context';
 import { symbols } from './symbols';
@@ -80,6 +82,8 @@ var patch = function(node, fn, data) {
   currentParent = null;
   previousNode = null;
 
+  ensureData(node);
+
   if (process.env.NODE_ENV !== 'production') {
     setInAttributes(false);
   }
@@ -113,12 +117,10 @@ var patch = function(node, fn, data) {
  * @return {boolean} True if the node matches, false otherwise.
  */
 var matches = function(nodeName, key) {
-  var data = getData(currentNode);
-
   // Key check is done using double equals as we want to treat a null key the
   // same as undefined. This should be okay as the only values allowed are
   // strings, null and undefined so the == semantics are not too weird.
-  return nodeName === data.nodeName && key == data.key;
+  return nodeName === getNodeName(currentNode) && key == getKey(currentNode);
 };
 
 
@@ -132,11 +134,8 @@ var matches = function(nodeName, key) {
  *     name-value pairs.
  */
 var alignWithDOM = function(nodeName, key, statics) {
-  if (currentNode) {
-    getOrCreateData(currentNode);
-  }
-
   if (currentNode && matches(nodeName, key)) {
+    ensureData(currentNode);
     return;
   }
 
@@ -145,8 +144,11 @@ var alignWithDOM = function(nodeName, key, statics) {
   // Check to see if the node has moved within the parent.
   if (key) {
     node = getChild(currentParent, key);
-    if (node && process.env.NODE_ENV !== 'production') {
-      assertKeyedTagMatches(getData(node).nodeName, nodeName, key);
+    if (node) {
+      ensureData(node);
+      if (process.env.NODE_ENV !== 'production') {
+        assertKeyedTagMatches(getData(node).nodeName, nodeName, key);
+      }
     }
   }
 
@@ -226,8 +228,6 @@ var clearUnvisitedDOM = function() {
  * Changes to the first child of the current node.
  */
 var enterNode = function() {
-  getOrCreateData(currentNode);
-
   currentParent = currentNode;
   currentNode = currentNode.firstChild;
   previousNode = null;

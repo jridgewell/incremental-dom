@@ -108,16 +108,12 @@ var getData = function(node) {
  * @param {Node} node The node to retrieve the data for.
  * @return {!NodeData} The NodeData for this Node.
  */
-var getOrCreateData = function(node) {
+var ensureData = function(node) {
   var data = getData(node);
 
   if (!data) {
-    var nodeName = node.nodeName.toLowerCase();
-    var key = null;
-
-    if (node instanceof Element) {
-      key = node.getAttribute('key');
-    }
+    var nodeName = getNodeName(node);
+    var key = getKey(node);
 
     data = initData(node, nodeName, key);
   }
@@ -126,9 +122,29 @@ var getOrCreateData = function(node) {
 };
 
 
+var getNodeName = function(node) {
+  var data = getData(node);
+  return data ? data.nodeName : node.nodeName;
+};
+
+
+var getKey = function(node) {
+  var data = getData(node);
+
+  if (data) {
+    return data.key;
+  }
+  if (node instanceof Element) {
+    return node.getAttribute('key');
+  }
+};
+
+
 /** */
 export {
   getData,
-  getOrCreateData,
+  ensureData,
+  getNodeName,
+  getKey,
   initData
 };
