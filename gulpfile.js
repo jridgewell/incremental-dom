@@ -121,7 +121,11 @@ function jsMin() {
       .pipe(inlineEnv())
       .pipe(babel())
       .pipe(uglify({
-        preserveComments: 'some'
+        preserveComments: 'some',
+        mangle: false,
+        output: {
+          beautify: true
+        }
       }))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest('dist'));

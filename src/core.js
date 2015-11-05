@@ -52,6 +52,9 @@ var root;
 var doc;
 
 
+var creation = false;
+
+
 /**
  * Patches the document starting at el with the provided function. This function
  * may be called during an existing patch operation.
@@ -98,6 +101,7 @@ var patch = function(node, fn, data) {
   currentNode = prevCurrentNode;
   currentParent = prevCurrentParent;
   previousNode = prevPreviousNode;
+  creation = false;
 };
 
 
@@ -145,27 +149,39 @@ var alignWithDOM = function(nodeName, key, statics) {
 
   // Create the node if it doesn't exist.
   if (!node) {
-    node = createNode(doc, nodeName, key, statics, currentParent);
-
-    if (key) {
-      registerChild(currentParent, key, node);
-    }
-
-    context.markCreated(node);
+    node = creater(nodeName, key, statics);
   }
 
   // If the node has a key, remove it from the DOM to prevent a large number
   // of re-orders in the case that it moved far or was completely removed.
   // Since we hold on to a reference through the keyMap, we can always add it
   // back.
-  if (currentNode && getData(currentNode).key) {
-    currentParent.replaceChild(node, currentNode);
-    getData(currentParent).keyMapValid = false;
-  } else {
+  // if (currentNode && getData(currentNode).key) {
+    // currentParent.replaceChild(node, currentNode);
+    // getData(currentParent).keyMapValid = false;
+  // } else {
     currentParent.insertBefore(node, currentNode);
-  }
+  // }
 
   currentNode = node;
+};
+
+
+var appendDOM = function(nodeName, key, statics) {
+  var node = creater(nodeName, key, statics);
+  currentParent.appendChild(node);
+  currentNode = node;
+};
+
+var creater = function(nodeName, key, statics) {
+  var node = createNode(doc, nodeName, key, statics, currentParent);
+
+  if (key) {
+    registerChild(currentParent, key, node);
+  }
+
+  context.markCreated(node);
+  return node;
 };
 
 
@@ -220,8 +236,10 @@ var clearUnvisitedDOM = function() {
  */
 var enterNode = function() {
   currentParent = currentNode;
-  currentNode = currentNode.firstChild;
+  currentNode = creation ? null : currentNode.firstChild;
   previousNode = null;
+
+  creation = creation || currentParent.childNodes.length === 0;
 };
 
 
@@ -230,7 +248,7 @@ var enterNode = function() {
  */
 var nextNode = function() {
   previousNode = currentNode;
-  currentNode = currentNode.nextSibling;
+  currentNode = creation ? null : currentNode.nextSibling;
 };
 
 
@@ -238,11 +256,15 @@ var nextNode = function() {
  * Changes to the parent of the current node, removing any unvisited children.
  */
 var exitNode = function() {
-  clearUnvisitedDOM();
+  if (!creation) {
+    clearUnvisitedDOM();
+  }
 
   previousNode = currentParent;
   currentNode = currentParent.nextSibling;
   currentParent = currentParent.parentNode;
+
+  creation = !currentNode;
 };
 
 
@@ -260,7 +282,11 @@ var exitNode = function() {
  * @return {!Element} The corresponding Element.
  */
 var elementOpen = function(tag, key, statics) {
-  alignWithDOM(tag, key, statics);
+  if (creation) {
+    appendDOM(tag, key, statics);
+  } else {
+    alignWithDOM(tag, key, statics);
+  }
   enterNode();
   return /** @type {!Element} */(currentParent);
 };
@@ -285,7 +311,11 @@ var elementClose = function() {
  * @return {!Text} The corresponding Text Node.
  */
 var text = function() {
-  alignWithDOM('#text', null, null);
+  if (creation) {
+    appendDOM('#text', null, null);
+  } else {
+    alignWithDOM('#text', null, null);
+  }
   nextNode();
   return /** @type {!Text} */(previousNode);
 };
