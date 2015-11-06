@@ -101,14 +101,19 @@ var applyAttributeTyped = function(el, name, value) {
 var updateAttribute = function(el, name, value) {
   var data = getData(el);
   var attrs = data.attrs;
+  var mutator;
 
-  if (attrs[name] === value) {
+  if (name in attrs && attrs[name] === value) {
     return;
   }
 
-  var mutator = attributes[name] || attributes[symbols.default];
-  mutator(el, name, value);
+  if (name in attributes) {
+    mutator = attributes[name];
+  } else {
+    mutator = attributes[symbols.default];
+  }
 
+  mutator(el, name, value);
   attrs[name] = value;
 };
 

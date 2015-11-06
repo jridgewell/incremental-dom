@@ -185,7 +185,8 @@ var clearUnvisitedDOM = function() {
     return;
   }
 
-  if (data.attrs[symbols.placeholder] && node !== root) {
+  var p = symbols.placeholder, a = data.attrs;
+  if (p in a && a[p] && node !== root) {
     return;
   }
 

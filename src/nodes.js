@@ -146,7 +146,8 @@ var getKeyMap = function(el) {
  * @return {?Element} The child corresponding to the key.
  */
 var getChild = function(parent, key) {
-  return getKeyMap(parent)[key];
+  var keyMap = getKeyMap(parent);
+  return key in keyMap ? keyMap[key] : null;
 };
 
 

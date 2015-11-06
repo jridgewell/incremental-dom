@@ -81,11 +81,14 @@ var elementOpen = function(tag, key, statics, var_args) {
   var i = ATTRIBUTES_OFFSET;
   var j = 0;
 
-  for (; i < arguments.length; i += 1, j += 1) {
+  for (; i < arguments.length && j < attrsArr.length; i += 1, j += 1) {
     if (attrsArr[j] !== arguments[i]) {
-      attrsChanged = true;
       break;
     }
+  }
+
+  if (i < arguments.length) {
+    attrsChanged = true;
   }
 
   for (; i < arguments.length; i += 1, j += 1) {
