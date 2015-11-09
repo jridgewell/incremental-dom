@@ -70,6 +70,12 @@ function NodeData(nodeName, key) {
   this.nodeName = nodeName;
 
   /**
+   * Whether or not this element should have it's children cleared on close.
+   * @type {boolean}
+   */
+  this.skip = false;
+
+  /**
    * @type {?string}
    */
   this.text = null;

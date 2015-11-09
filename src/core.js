@@ -181,11 +181,12 @@ var clearUnvisitedDOM = function() {
   var child = node.lastChild;
   var key;
 
-  if (child === previousNode && keyMapValid) {
+  if (data.skip || (data.attrs[symbols.placeholder] && node !== root)) {
+    data.skip = false;
     return;
   }
 
-  if (data.attrs[symbols.placeholder] && node !== root) {
+  if (child === previousNode && keyMapValid) {
     return;
   }
 
@@ -309,7 +310,8 @@ var currentElement = function() {
  * clearing out the children.
  */
 var skip = function() {
-  previousNode = currentParent.lastChild;
+  var data = getData(currentParent);
+  data.skip = true;
 };
 
 

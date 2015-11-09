@@ -34,18 +34,54 @@ describe('skip', () => {
     document.body.removeChild(container);
   });
 
-  function render(data) {
-    elementOpen('div');
-      if (data.skip) {
-        skip();
-      } else {
-        text('some ');
-        text('text');
-      }
-    elementClose('div');
-  }
-
   it('should keep any DOM nodes in the subtree', () => {
+    function render(data) {
+      elementOpen('div');
+        if (data.skip) {
+          skip();
+        } else {
+          text('some ');
+          text('text');
+        }
+      elementClose('div');
+    }
+    patch(container, render, { skip: false });
+    patch(container, render, { skip: true });
+
+    expect(container.textContent).to.equal('some text');
+  });
+
+  it('should allow updating DOM nodes', () => {
+    function render(data) {
+      elementOpen('div');
+        if (data.skip) {
+          text('one ');
+          text('more');
+          skip();
+        } else {
+          text('some ');
+          text('text');
+        }
+      elementClose('div');
+    }
+    patch(container, render, { skip: false });
+    patch(container, render, { skip: true });
+
+    expect(container.textContent).to.equal('one more');
+  });
+
+  it('should allow a call in any order', () => {
+    function render(data) {
+      elementOpen('div');
+        if (data.skip) {
+          skip();
+          text('some ');
+        } else {
+          text('some ');
+          text('text');
+        }
+      elementClose('div');
+    }
     patch(container, render, { skip: false });
     patch(container, render, { skip: true });
 
