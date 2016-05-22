@@ -25,11 +25,21 @@ const DATA_PROP = '__incrementalDOMData';
 
 /**
  * Keeps track of information needed to perform diffs for a given DOM node.
+ * @param {!Node} node The Node to import.
  * @param {!string} nodeName
  * @param {?string=} key
+ * @param {?NodeData} parentData
  * @constructor
  */
-function NodeData(nodeName, key) {
+function NodeData(node, nodeName, key, parentData) {
+  this.node = node;
+
+  this.nextData = null;
+  this.previousData = null;
+  this.firstData = null;
+  this.lastData = null;
+  this.parentData = parentData;
+
   /**
    * The attributes and their values.
    * @const {!Object<string, *>}
@@ -100,10 +110,11 @@ function NodeData(nodeName, key) {
  * @param {Node} node The node to initialize data for.
  * @param {string} nodeName The node name of node.
  * @param {?string=} key The key that identifies the node.
+ * @param {?NodeData} parentData
  * @return {!NodeData} The newly initialized data object
  */
-const initData = function(node, nodeName, key) {
-  const data = new NodeData(nodeName, key);
+const initData = function(node, nodeName, key, parentData) {
+  const data = new NodeData(node, nodeName, key, parentData);
   node[DATA_PROP] = data;
   return data;
 };
@@ -113,11 +124,15 @@ const initData = function(node, nodeName, key) {
  * Retrieves the NodeData object for a Node, creating it if necessary.
  *
  * @param {?Node} node The Node to retrieve the data for.
- * @return {!NodeData} The NodeData for this Node.
+ * @return {?NodeData} The NodeData for this Node.
  */
 const getData = function(node) {
-  importNode(node);
-  return node[DATA_PROP];
+  if (node) {
+    importNode(node);
+    return node[DATA_PROP];
+  }
+
+  return null;
 };
 
 
@@ -125,8 +140,9 @@ const getData = function(node) {
  * Imports node and its subtree, initializing caches.
  *
  * @param {?Node} node The Node to import.
+ * @param {?NodeData} parentData
  */
-const importNode = function(node) {
+const importNode = function(node, parentData) {
   if (node[DATA_PROP]) {
     return;
   }
@@ -134,13 +150,20 @@ const importNode = function(node) {
   const nodeName = node.nodeName.toLowerCase();
   const isElement = node instanceof Element;
   const key = isElement ? node.getAttribute('key') : null;
-  const data = initData(node, nodeName, key);
+  const data = initData(node, nodeName, key, parentData);
 
   if (key) {
-    getData(node.parentNode).keyMap[key] = node;
+    parentData.keyMap[key] = node;
+  }
+
+  for (let child = node.firstChild; child; child = child.nextSibling) {
+    importNode(child, data);
   }
 
   if (isElement) {
+    data.firstChild = getData(node.firstChild);
+    data.lastChild = getData(node.lastChild);
+
     const attributes = node.attributes;
     const attrs = data.attrs;
     const newAttrs = data.newAttrs;
@@ -156,10 +179,6 @@ const importNode = function(node) {
       attrsArr.push(name);
       attrsArr.push(value);
     }
-  }
-
-  for (let child = node.firstChild; child; child = child.nextSibling) {
-    importNode(child);
   }
 };
 

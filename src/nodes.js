@@ -23,32 +23,32 @@ import {
 /**
  * Gets the namespace to create an element (of a given tag) in.
  * @param {string} tag The tag to get the namespace for.
- * @param {?Node} parent
+ * @param {?NodeData} parentData
  * @return {?string} The namespace to create the tag in.
  */
-const getNamespaceForTag = function(tag, parent) {
+const getNamespaceForTag = function(tag, parentData) {
   if (tag === 'svg') {
     return 'http://www.w3.org/2000/svg';
   }
 
-  if (getData(parent).nodeName === 'foreignObject') {
+  if (parentData.nodeName === 'foreignObject') {
     return null;
   }
 
-  return parent.namespaceURI;
+  return parentData.node.namespaceURI;
 };
 
 
 /**
  * Creates an Element.
  * @param {Document} doc The document with which to create the Element.
- * @param {?Node} parent
+ * @param {?NodeData} parentData
  * @param {string} tag The tag for the Element.
  * @param {?string=} key A key to identify the Element.
  * @return {!Element}
  */
-const createElement = function(doc, parent, tag, key) {
-  const namespace = getNamespaceForTag(tag, parent);
+const createElement = function(doc, parentData, tag, key) {
+  const namespace = getNamespaceForTag(tag, parentData);
   let el;
 
   if (namespace) {
@@ -57,7 +57,7 @@ const createElement = function(doc, parent, tag, key) {
     el = doc.createElement(tag);
   }
 
-  initData(el, tag, key);
+  initData(el, tag, key, parentData);
 
   return el;
 };
@@ -66,11 +66,12 @@ const createElement = function(doc, parent, tag, key) {
 /**
  * Creates a Text Node.
  * @param {Document} doc The document with which to create the Element.
+ * @param {?NodeData} parentData
  * @return {!Text}
  */
-const createText = function(doc) {
+const createText = function(doc, parentData) {
   const node = doc.createTextNode('');
-  initData(node, '#text', null);
+  initData(node, '#text', null, parentData);
   return node;
 };
 

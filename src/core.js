@@ -236,9 +236,9 @@ const alignWithDOM = function(nodeName, key) {
   // Create the node if it doesn't exist.
   if (!node) {
     if (nodeName === '#text') {
-      node = createText(doc);
+      node = createText(doc, getData(currentParent));
     } else {
-      node = createElement(doc, currentParent, nodeName, key);
+      node = createElement(doc, getData(currentParent), nodeName, key);
     }
 
     if (key) {
