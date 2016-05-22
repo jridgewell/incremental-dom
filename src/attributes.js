@@ -131,12 +131,11 @@ const applyAttributeTyped = function(el, name, value) {
 
 /**
  * Calls the appropriate attribute mutator for this attribute.
- * @param {!Element} el
+ * @param {!NodeData} data
  * @param {string} name The attribute's name.
  * @param {*} value The attribute's value.
  */
-const updateAttribute = function(el, name, value) {
-  const data = getData(el);
+const updateAttribute = function(data, name, value) {
   const attrs = data.attrs;
 
   if (attrs[name] === value) {
@@ -144,7 +143,7 @@ const updateAttribute = function(el, name, value) {
   }
 
   const mutator = attributes[name] || attributes[symbols.default];
-  mutator(el, name, value);
+  mutator(data.node, name, value);
 
   attrs[name] = value;
 };

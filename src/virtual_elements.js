@@ -20,7 +20,6 @@ import {
   text as coreText
 } from './core';
 import { updateAttribute } from './attributes';
-import { getData } from './node_data';
 import {
   assertNotInAttributes,
   assertNotInSkip,
@@ -72,7 +71,7 @@ const elementOpen = function(tag, key, statics, var_args) {
       for (let i = 0; i < statics.length; i += 2) {
         const name = /** @type {string} */(statics[i]);
         const value = statics[i + 1];
-        updateAttribute(node, name, value);
+        updateAttribute(data, name, value);
       }
     }
     // Down the road, we may want to keep track of the statics array to use it
@@ -105,7 +104,7 @@ const elementOpen = function(tag, key, statics, var_args) {
     const value = arguments[i + 1];
     if (isNew || attrsArr[j + 1] !== value) {
       attrsArr[j + 1] = value;
-      updateAttribute(node, attr, value);
+      updateAttribute(data, attr, value);
     }
   }
 
@@ -128,7 +127,7 @@ const elementOpen = function(tag, key, statics, var_args) {
     }
 
     for (const attr in newAttrs) {
-      updateAttribute(node, attr, newAttrs[attr]);
+      updateAttribute(data, attr, newAttrs[attr]);
       newAttrs[attr] = undefined;
     }
   }
