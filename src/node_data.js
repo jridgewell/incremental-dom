@@ -106,6 +106,23 @@ function NodeData(node, nodeName, key, parentData) {
 NodeData.prototype.insertBefore = function(newNodeData, referenceNodeData) {
   this.node.insertBefore(newNodeData.node, referenceNodeData ? referenceNodeData.node : null);
 
+  const oldParentData = newNodeData.parentData;
+  const oldPreviousData = newNodeData.previousData;
+  const oldNextData = newNodeData.nextData;
+  if (oldPreviousData) {
+    if (oldParentData && oldParentData.lastData === newNodeData) {
+      oldParentData.lastData = oldPreviousData;
+    }
+    oldPreviousData.nextData = oldNextData;
+  }
+  if (oldNextData) {
+    if (oldParentData && oldParentData.firstData === newNodeData) {
+      oldParentData.firstData = oldNextData;
+    }
+    oldNextData.previousData = oldPreviousData;
+  }
+
+  newNodeData.parentData = this;
   if (referenceNodeData) {
     const previousData = referenceNodeData.previousData;
     newNodeData.nextData = referenceNodeData;
@@ -118,7 +135,7 @@ NodeData.prototype.insertBefore = function(newNodeData, referenceNodeData) {
     const lastData = this.lastData;
     this.lastData = newNodeData;
     if (lastData) {
-      newNodeData.previousData = this.lastData;
+      newNodeData.previousData = lastData;
       lastData.nextData = newNodeData;
     }
   }
@@ -130,14 +147,32 @@ NodeData.prototype.insertBefore = function(newNodeData, referenceNodeData) {
 NodeData.prototype.replaceChild = function(newChildData, referenceChildData) {
   this.node.replaceChild(newChildData.node, referenceChildData.node);
 
+  const oldParentData = newChildData.parentData;
+  const oldPreviousData = newChildData.previousData;
+  const oldNextData = newChildData.nextData;
+  if (oldPreviousData) {
+    if (oldParentData && oldParentData.lastData === newChildData) {
+      oldParentData.lastData = oldPreviousData;
+    }
+    oldPreviousData.nextData = oldNextData;
+  }
+  if (oldNextData) {
+    if (oldParentData && oldParentData.firstData === newChildData) {
+      oldParentData.firstData = oldNextData;
+    }
+    oldNextData.previousData = oldPreviousData;
+  }
+
   const previousData = referenceChildData.previousData;
   const nextData = referenceChildData.nextData;
 
   referenceChildData.previousData = null;
   referenceChildData.nextData = null;
+  referenceChildData.parentData = null;
 
   newChildData.previousData = previousData;
   newChildData.nextData = nextData;
+  newChildData.parentData = this;
   if (previousData) {
     previousData.nextData = newChildData;
   }
@@ -160,6 +195,7 @@ NodeData.prototype.removeChild = function(childData) {
 
   childData.previousData = null;
   childData.nextData = null;
+  childData.parentData = null;
 
   if (previousData) {
     previousData.nextData = nextData;

@@ -39,10 +39,10 @@ import {
 /** @type {?Context} */
 let context = null;
 
-/** @type {?Node} */
-let currentNode = null;
+/** @type {?NodeData} */
+let currentNodeData = null;
 
-/** @type {?Node} */
+/** @type {?NodeData} */
 let currentParentData = null;
 
 /** @type {?Document} */
@@ -81,7 +81,7 @@ const patchFactory = function(run) {
   const f = function(node, fn, data) {
     const prevContext = context;
     const prevDoc = doc;
-    const prevCurrentNode = currentNode;
+    const prevCurrentNode = currentNodeData;
     const prevCurrentParent = currentParentData;
     let previousInAttributes = false;
     let previousInSkip = false;
@@ -112,7 +112,7 @@ const patchFactory = function(run) {
 
     context = prevContext;
     doc = prevDoc;
-    currentNode = prevCurrentNode;
+    currentNodeData = prevCurrentNode;
     currentParentData = prevCurrentParent;
 
     return retVal;
@@ -133,14 +133,14 @@ const patchFactory = function(run) {
  * @template T
  */
 const patchInner = patchFactory(function(node, fn, data) {
-  currentNode = node;
+  currentNodeData = getData(node);
 
   enterNode();
   fn(data);
   exitNode();
 
   if (process.env.NODE_ENV !== 'production') {
-    assertNoUnclosedTags(currentNode, node);
+    assertNoUnclosedTags(currentNodeData.node, node);
   }
 
   return node;
@@ -160,28 +160,27 @@ const patchInner = patchFactory(function(node, fn, data) {
  * @template T
  */
 const patchOuter = patchFactory(function(node, fn, data) {
-  let startNode = /** @type {!Element} */({ nextSibling: node });
-  let expectedNextNode = null;
-  let expectedPrevNode = null;
+  let startNode = /** @type {!NodeData} */({ nextData: getData(node) });
+  let expectedNext = null;
+  let expectedPrev = null;
 
   if (process.env.NODE_ENV !== 'production') {
-    expectedNextNode = node.nextSibling;
-    expectedPrevNode = node.previousSibling;
+    expectedNext = getData(node).nextData;
+    expectedPrev = getData(node).previousData;
   }
 
-  currentNode = startNode;
+  currentNodeData = startNode;
   fn(data);
 
   if (process.env.NODE_ENV !== 'production') {
-    assertPatchElementNoExtras(startNode, currentNode, expectedNextNode,
-        expectedPrevNode);
+    assertPatchElementNoExtras(startNode, currentNodeData, expectedNext, expectedPrev);
   }
 
-  if (node !== currentNode) {
+  if (node !== currentNodeData.node) {
     removeChild(currentParentData, getData(node));
   }
 
-  return (startNode === currentNode) ? null : currentNode;
+  return (startNode === currentNodeData) ? null : currentNodeData.node;
 });
 
 
@@ -210,12 +209,11 @@ const matches = function(nodeData, nodeName, key) {
  * @param {?string=} key The key used to identify this element.
  */
 const alignWithDOM = function(nodeName, key) {
-  if (currentNode && matches(getData(currentNode), nodeName, key)) {
+  if (currentNodeData && matches(currentNodeData, nodeName, key)) {
     return;
   }
 
   const parentData = currentParentData;
-  const currentNodeData = currentNode && getData(currentNode);
   const keyMap = parentData.keyMap;
   let node;
 
@@ -226,7 +224,7 @@ const alignWithDOM = function(nodeName, key) {
       const keyNode = keyNodeData.node;
       if (matches(keyNodeData, nodeName, key)) {
         node = keyNode;
-      } else if (keyNode === currentNode) {
+      } else if (keyNodeData === currentNodeData) {
         context.markDeleted(keyNode);
       } else {
         removeChild(parentData, keyNodeData);
@@ -252,13 +250,13 @@ const alignWithDOM = function(nodeName, key) {
   }
 
   // Re-order the node into the right position, preserving focus if either
-  // node or currentNode are focused by making sure that they are not detached
+  // node or currentNodeData are focused by making sure that they are not detached
   // from the DOM.
   if (getData(node).focused) {
     // Move everything else before the node.
     moveBefore(parentData, getData(node), currentNodeData);
   } else if (currentNodeData && currentNodeData.key && !currentNodeData.focused) {
-    // Remove the currentNode, which can always be added back since we hold a
+    // Remove the currentNodeData, which can always be added back since we hold a
     // reference through the keyMap. This prevents a large number of moves when
     // a keyed item is removed or moved backwards in the DOM.
     parentData.replaceChild(getData(node), currentNodeData);
@@ -267,7 +265,7 @@ const alignWithDOM = function(nodeName, key) {
     parentData.insertBefore(getData(node), currentNodeData);
   }
 
-  currentNode = node;
+  currentNodeData = getData(node);
 };
 
 
@@ -291,28 +289,27 @@ const removeChild = function(parentData, childData) {
  * functions were never called for them.
  */
 const clearUnvisitedDOM = function() {
-  const node = currentParentData.node;
-  const data = getData(node);
+  const data = currentParentData;
   const keyMap = data.keyMap;
   const keyMapValid = data.keyMapValid;
-  let child = node.lastChild;
+  let child = data.lastData;
   let key;
 
-  if (child === currentNode && keyMapValid) {
+  if (child === currentNodeData && keyMapValid) {
     return;
   }
 
-  while (child !== currentNode) {
-    removeChild(data, getData(child));
-    child = node.lastChild;
+  while (child !== currentNodeData) {
+    removeChild(data, child);
+    child = data.lastData;
   }
 
   // Clean the keyMap, removing any unusued keys.
   if (!keyMapValid) {
     for (key in keyMap) {
-      child = keyMap[key].node;
-      if (child.parentNode !== node) {
-        context.markDeleted(child);
+      child = keyMap[key];
+      if (child.parentData !== data) {
+        context.markDeleted(child.node);
         delete keyMap[key];
       }
     }
@@ -326,8 +323,8 @@ const clearUnvisitedDOM = function() {
  * Changes to the first child of the current node.
  */
 const enterNode = function() {
-  currentParentData = getData(currentNode);
-  currentNode = null;
+  currentParentData = currentNodeData;
+  currentNodeData = null;
 };
 
 
@@ -335,10 +332,10 @@ const enterNode = function() {
  * @return {?Node} The next Node to be patched.
  */
 const getNextNode = function() {
-  if (currentNode) {
-    return currentNode.nextSibling;
+  if (currentNodeData) {
+    return currentNodeData.nextData;
   } else {
-    return currentParentData.firstData && currentParentData.firstData.node;
+    return currentParentData.firstData;
   }
 };
 
@@ -347,7 +344,7 @@ const getNextNode = function() {
  * Changes to the next sibling of the current node.
  */
 const nextNode = function() {
-  currentNode = getNextNode();
+  currentNodeData = getNextNode();
 };
 
 
@@ -357,7 +354,7 @@ const nextNode = function() {
 const exitNode = function() {
   clearUnvisitedDOM();
 
-  currentNode = currentParentData.node;
+  currentNodeData = currentParentData;
   currentParentData = currentParentData.parentData;
 };
 
@@ -392,7 +389,7 @@ const elementClose = function() {
   }
 
   exitNode();
-  return /** @type {!Element} */(currentNode);
+  return /** @type {!Element} */(currentNodeData.node);
 };
 
 
@@ -405,7 +402,7 @@ const elementClose = function() {
 const text = function() {
   nextNode();
   alignWithDOM('#text', null);
-  return /** @type {!Text} */(currentNode);
+  return /** @type {!Text} */(currentNodeData.node);
 };
 
 
@@ -430,7 +427,8 @@ const currentPointer = function() {
     assertInPatch('currentPointer', context);
     assertNotInAttributes('currentPointer');
   }
-  return getNextNode();
+  const nextNode = getNextNode();
+  return nextNode ? nextNode.node : null;
 };
 
 
@@ -440,10 +438,10 @@ const currentPointer = function() {
  */
 const skip = function() {
   if (process.env.NODE_ENV !== 'production') {
-    assertNoChildrenDeclaredYet('skip', currentNode);
+    assertNoChildrenDeclaredYet('skip', currentNodeData && currentNodeData.node);
     setInSkip(true);
   }
-  currentNode = currentParentData.lastData && currentParentData.lastData.node;
+  currentNodeData = currentParentData.lastData;
 };
 
 

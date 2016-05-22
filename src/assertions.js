@@ -154,10 +154,10 @@ const assertPatchElementNoExtras = function(
     currentNode,
     expectedNextNode,
     expectedPrevNode) {
-  const wasUpdated = currentNode.nextSibling === expectedNextNode &&
-                     currentNode.previousSibling === expectedPrevNode;
-  const wasChanged = currentNode.nextSibling === startNode.nextSibling &&
-                     currentNode.previousSibling === expectedPrevNode;
+  const wasUpdated = currentNode.nextData === expectedNextNode &&
+                     currentNode.previousData === expectedPrevNode;
+  const wasChanged = currentNode.nextData === startNode.nextData &&
+                     currentNode.previousData === expectedPrevNode;
   const wasRemoved = currentNode === startNode;
 
   if (!wasUpdated && !wasChanged && !wasRemoved) {
