@@ -241,8 +241,8 @@ const importNode = function(node, parentData) {
   }
 
   if (isElement) {
-    data.firstChild = getData(node.firstChild);
-    data.lastChild = getData(node.lastChild);
+    data.firstData = getData(node.firstChild);
+    data.lastData = getData(node.lastChild);
 
     const attributes = node.attributes;
     const attrs = data.attrs;
