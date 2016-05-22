@@ -236,16 +236,18 @@ const alignWithDOM = function(nodeName, key) {
 
   // Create the node if it doesn't exist.
   if (!node) {
+    let data;
     if (nodeName === '#text') {
-      node = createText(doc, parentData);
+      data = createText(doc, parentData);
     } else {
-      node = createElement(doc, parentData, nodeName, key);
+      data = createElement(doc, parentData, nodeName, key);
     }
 
     if (key) {
-      keyMap[key] = getData(node);
+      keyMap[key] = data;
     }
 
+    node = data.node;
     context.markCreated(node);
   }
 

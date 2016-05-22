@@ -42,7 +42,7 @@ const getNamespaceForTag = function(tag, parentData) {
  * @param {?NodeData} parentData
  * @param {string} tag The tag for the Element.
  * @param {?string=} key A key to identify the Element.
- * @return {!Element}
+ * @return {!NodeData}
  */
 const createElement = function(doc, parentData, tag, key) {
   const namespace = getNamespaceForTag(tag, parentData);
@@ -54,9 +54,7 @@ const createElement = function(doc, parentData, tag, key) {
     el = doc.createElement(tag);
   }
 
-  initData(el, tag, key, parentData);
-
-  return el;
+  return initData(el, tag, key, parentData);
 };
 
 
@@ -64,12 +62,11 @@ const createElement = function(doc, parentData, tag, key) {
  * Creates a Text Node.
  * @param {Document} doc The document with which to create the Element.
  * @param {?NodeData} parentData
- * @return {!Text}
+ * @return {!NodeData}
  */
 const createText = function(doc, parentData) {
   const node = doc.createTextNode('');
-  initData(node, '#text', null, parentData);
-  return node;
+  return initData(node, '#text', null, parentData);
 };
 
 
