@@ -43,7 +43,7 @@ let context = null;
 let currentNode = null;
 
 /** @type {?Node} */
-let currentParent = null;
+let currentParentData = null;
 
 /** @type {?Document} */
 let doc = null;
@@ -82,13 +82,13 @@ const patchFactory = function(run) {
     const prevContext = context;
     const prevDoc = doc;
     const prevCurrentNode = currentNode;
-    const prevCurrentParent = currentParent;
+    const prevCurrentParent = currentParentData;
     let previousInAttributes = false;
     let previousInSkip = false;
 
     context = new Context();
     doc = node.ownerDocument;
-    currentParent = node.parentNode;
+    currentParentData = getData(node.parentNode);
 
     const nodeData = getData(node);
 
@@ -113,7 +113,7 @@ const patchFactory = function(run) {
     context = prevContext;
     doc = prevDoc;
     currentNode = prevCurrentNode;
-    currentParent = prevCurrentParent;
+    currentParentData = prevCurrentParent;
 
     return retVal;
   };
@@ -178,7 +178,7 @@ const patchOuter = patchFactory(function(node, fn, data) {
   }
 
   if (node !== currentNode) {
-    removeChild(getData(currentParent), getData(node));
+    removeChild(currentParentData, getData(node));
   }
 
   return (startNode === currentNode) ? null : currentNode;
@@ -214,7 +214,7 @@ const alignWithDOM = function(nodeName, key) {
     return;
   }
 
-  const parentData = getData(currentParent);
+  const parentData = currentParentData;
   const currentNodeData = currentNode && getData(currentNode);
   const keyMap = parentData.keyMap;
   let node;
@@ -291,7 +291,7 @@ const removeChild = function(parentData, childData) {
  * functions were never called for them.
  */
 const clearUnvisitedDOM = function() {
-  const node = currentParent;
+  const node = currentParentData.node;
   const data = getData(node);
   const keyMap = data.keyMap;
   const keyMapValid = data.keyMapValid;
@@ -326,7 +326,7 @@ const clearUnvisitedDOM = function() {
  * Changes to the first child of the current node.
  */
 const enterNode = function() {
-  currentParent = currentNode;
+  currentParentData = getData(currentNode);
   currentNode = null;
 };
 
@@ -338,7 +338,7 @@ const getNextNode = function() {
   if (currentNode) {
     return currentNode.nextSibling;
   } else {
-    return currentParent.firstChild;
+    return currentParentData.firstData && currentParentData.firstData.node;
   }
 };
 
@@ -357,8 +357,8 @@ const nextNode = function() {
 const exitNode = function() {
   clearUnvisitedDOM();
 
-  currentNode = currentParent;
-  currentParent = currentParent.parentNode;
+  currentNode = currentParentData.node;
+  currentParentData = currentParentData.parentData;
 };
 
 
@@ -376,7 +376,7 @@ const elementOpen = function(tag, key) {
   nextNode();
   alignWithDOM(tag, key);
   enterNode();
-  return /** @type {!Element} */(currentParent);
+  return /** @type {!Element} */(currentParentData.node);
 };
 
 
@@ -418,7 +418,7 @@ const currentElement = function() {
     assertInPatch('currentElement', context);
     assertNotInAttributes('currentElement');
   }
-  return /** @type {!Element} */(currentParent);
+  return /** @type {!Element} */(currentParentData.node);
 };
 
 
@@ -443,7 +443,7 @@ const skip = function() {
     assertNoChildrenDeclaredYet('skip', currentNode);
     setInSkip(true);
   }
-  currentNode = currentParent.lastChild;
+  currentNode = currentParentData.lastData && currentParentData.lastData.node;
 };
 
 
