@@ -152,12 +152,20 @@ const importNode = function(node, parentData) {
   const key = isElement ? node.getAttribute('key') : null;
   const data = initData(node, nodeName, key, parentData);
 
-  if (key) {
+  if (key && parentData) {
     parentData.keyMap[key] = data;
   }
 
-  for (let child = node.firstChild; child; child = child.nextSibling) {
+  let prevData = null;
+  let child = node.firstChild;
+  for (; child; child = child.nextSibling) {
     importNode(child, data);
+    const childData = getData(child);
+    if (prevData) {
+      prevData.nextData = childData;
+    }
+    childData.previousData = prevData;
+    prevData = childData;
   }
 
   if (isElement) {
