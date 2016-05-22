@@ -256,15 +256,15 @@ const alignWithDOM = function(nodeName, key) {
   // from the DOM.
   if (getData(node).focused) {
     // Move everything else before the node.
-    moveBefore(currentParent, node, currentNode);
+    moveBefore(parentData, getData(node), currentNodeData);
   } else if (currentNodeData && currentNodeData.key && !currentNodeData.focused) {
     // Remove the currentNode, which can always be added back since we hold a
     // reference through the keyMap. This prevents a large number of moves when
     // a keyed item is removed or moved backwards in the DOM.
-    currentParent.replaceChild(node, currentNode);
+    parentData.replaceChild(getData(node), currentNodeData);
     parentData.keyMapValid = false;
   } else {
-    currentParent.insertBefore(node, currentNode);
+    parentData.insertBefore(getData(node), currentNodeData);
   }
 
   currentNode = node;
@@ -276,7 +276,7 @@ const alignWithDOM = function(nodeName, key) {
  * @param {?NodeData} childData
  */
 const removeChild = function(parentData, childData) {
-  parentData.node.removeChild(childData.node);
+  parentData.removeChild(childData);
   context.markDeleted(/** @type {!Node}*/(childData.node));
 
   const key = childData.key;

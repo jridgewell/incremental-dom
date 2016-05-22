@@ -103,6 +103,78 @@ function NodeData(node, nodeName, key, parentData) {
   this.text = null;
 }
 
+NodeData.prototype.insertBefore = function(newNodeData, referenceNodeData) {
+  this.node.insertBefore(newNodeData.node, referenceNodeData ? referenceNodeData.node : null);
+
+  if (referenceNodeData) {
+    const previousData = referenceNodeData.previousData;
+    newNodeData.nextData = referenceNodeData;
+    referenceNodeData.previousData = newNodeData;
+    if (previousData) {
+      previousData.nextData = newNodeData;
+      newNodeData.previousData = previousData;
+    }
+  } else {
+    const lastData = this.lastData;
+    this.lastData = newNodeData;
+    if (lastData) {
+      newNodeData.previousData = this.lastData;
+      lastData.nextData = newNodeData;
+    }
+  }
+  if (this.firstData === referenceNodeData) {
+    this.firstData = newNodeData;
+  }
+}
+
+NodeData.prototype.replaceChild = function(newChildData, referenceChildData) {
+  this.node.replaceChild(newChildData.node, referenceChildData.node);
+
+  const previousData = referenceChildData.previousData;
+  const nextData = referenceChildData.nextData;
+
+  referenceChildData.previousData = null;
+  referenceChildData.nextData = null;
+
+  newChildData.previousData = previousData;
+  newChildData.nextData = nextData;
+  if (previousData) {
+    previousData.nextData = newChildData;
+  }
+  if (nextData) {
+    nextData.previousData = newChildData;
+  }
+  if (this.firstData === referenceChildData) {
+    this.firstData = newChildData;
+  }
+  if (this.lastData === referenceChildData) {
+    this.lastData = newChildData;
+  }
+}
+
+NodeData.prototype.removeChild = function(childData) {
+  this.node.removeChild(childData.node);
+
+  const previousData = childData.previousData;
+  const nextData = childData.nextData;
+
+  childData.previousData = null;
+  childData.nextData = null;
+
+  if (previousData) {
+    previousData.nextData = nextData;
+  }
+  if (nextData) {
+    nextData.previousData = previousData;
+  }
+  if (this.firstData === childData) {
+    this.firstData = nextData;
+  }
+  if (this.lastData === childData) {
+    this.lastData = previousData;
+  }
+}
+
 
 /**
  * Initializes a NodeData object for a Node.

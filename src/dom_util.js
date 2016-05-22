@@ -96,17 +96,17 @@ const getFocusedPath = function(nodeData) {
 /**
  * Like insertBefore, but instead instead of moving the desired node, instead
  * moves all the other nodes after.
- * @param {?Node} parentNode
- * @param {!Node} node
- * @param {?Node} referenceNode
+ * @param {?NodeData} parentData
+ * @param {!NodeData} nodeData
+ * @param {?NodeData} referenceNodeData
  */
-const moveBefore = function(parentNode, node, referenceNode) {
-  const insertReferenceNode = node.nextSibling;
-  let cur = referenceNode;
+const moveBefore = function(parentData, nodeData, referenceNodeData) {
+  const insertReferenceData = nodeData.nextData;
+  let cur = referenceNodeData;
 
-  while (cur !== node) {
-    const next = cur.nextSibling;
-    parentNode.insertBefore(cur, insertReferenceNode);
+  while (cur !== nodeData) {
+    const next = cur.nextData;
+    parentData.insertBefore(cur, insertReferenceData);
     cur = next;
   }
 };
