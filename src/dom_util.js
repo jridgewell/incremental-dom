@@ -15,6 +15,8 @@
  */
 
 
+import { getData } from "./node_data";
+
 /**
  * @param {!Node} node
  * @return {boolean} True if the node the root of a document, false otherwise.
@@ -28,17 +30,17 @@ const isDocumentRoot = function(node) {
 
 
 /**
- * @param {!Node} node The node to start at, inclusive.
- * @param {?Node} root The root ancestor to get until, exclusive.
- * @return {!Array<!Node>} The ancestry of DOM nodes.
+ * @param {!NodeData} startData The node to start at, inclusive.
+ * @param {!NodeData} rootData The root ancestor to get until, exclusive.
+ * @return {!Array<!NodeData>} The ancestry of DOM nodes.
  */
-const getAncestry = function(node, root) {
+const getAncestry = function(startData, rootData) {
   const ancestry = [];
-  let cur = node;
+  let cur = startData;
 
-  while (cur !== root) {
+  while (cur !== rootData) {
     ancestry.push(cur);
-    cur = cur.parentNode;
+    cur = cur.parentData;
   }
 
   return ancestry;
@@ -76,18 +78,18 @@ const getActiveElement = function(node) {
 /**
  * Gets the path of nodes that contain the focused node in the same document as
  * a reference node, up until the root.
- * @param {!Node} node The reference node to get the activeElement for.
- * @param {?Node} root The root to get the focused path until.
+ * @param {!NodeData} nodeData The root node to get the activeElement for.
  * @return {!Array<Node>}
  */
-const getFocusedPath = function(node, root) {
+const getFocusedPath = function(nodeData) {
+  const node = nodeData.node;
   const activeElement = getActiveElement(node);
 
   if (!activeElement || !node.contains(activeElement)) {
     return [];
   }
 
-  return getAncestry(activeElement, root);
+  return getAncestry(getData(activeElement), nodeData);
 };
 
 

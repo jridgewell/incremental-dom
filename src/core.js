@@ -50,12 +50,12 @@ let doc = null;
 
 
 /**
- * @param {!Array<Node>} focusPath The nodes to mark.
+ * @param {!Array<!NodeData>} focusPath The nodeDatas to mark.
  * @param {boolean} focused Whether or not they are focused.
  */
 const markFocused = function(focusPath, focused) {
   for (let i = 0; i < focusPath.length; i += 1) {
-    getData(focusPath[i]).focused = focused;
+    focusPath[i].focused = focused;
   }
 };
 
@@ -90,12 +90,14 @@ const patchFactory = function(run) {
     doc = node.ownerDocument;
     currentParent = node.parentNode;
 
+    const nodeData = getData(node);
+
     if (process.env.NODE_ENV !== 'production') {
       previousInAttributes = setInAttributes(false);
       previousInSkip = setInSkip(false);
     }
 
-    const focusPath = getFocusedPath(node, currentParent);
+    const focusPath = getFocusedPath(nodeData);
     markFocused(focusPath, true);
     const retVal = run(node, fn, data);
     markFocused(focusPath, false);

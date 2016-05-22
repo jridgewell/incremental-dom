@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import {
-    getData,
-    initData
-} from './node_data';
+import { initData } from './node_data';
 
 
 /**
