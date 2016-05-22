@@ -176,7 +176,7 @@ const patchOuter = patchFactory(function(node, fn, data) {
   }
 
   if (node !== currentNode) {
-    removeChild(currentParent, node, getData(currentParent).keyMap);
+    removeChild(getData(currentParent), getData(node));
   }
 
   return (startNode === currentNode) ? null : currentNode;
@@ -227,7 +227,7 @@ const alignWithDOM = function(nodeName, key) {
       } else if (keyNode === currentNode) {
         context.markDeleted(keyNode);
       } else {
-        removeChild(currentParent, keyNode, keyMap);
+        removeChild(currentParentData, keyNodeData);
       }
     }
   }
@@ -268,17 +268,16 @@ const alignWithDOM = function(nodeName, key) {
 
 
 /**
- * @param {?Node} node
- * @param {?Node} child
- * @param {?Object<string, !NodeData>} keyMap
+ * @param {?NodeData} parentData
+ * @param {?NodeData} childData
  */
-const removeChild = function(node, child, keyMap) {
-  node.removeChild(child);
-  context.markDeleted(/** @type {!Node}*/(child));
+const removeChild = function(parentData, childData) {
+  parentData.node.removeChild(childData.node);
+  context.markDeleted(/** @type {!Node}*/(childData.node));
 
-  const key = getData(child).key;
+  const key = childData.key;
   if (key) {
-    delete keyMap[key];
+    delete parentData.keyMap[key];
   }
 };
 
@@ -300,7 +299,7 @@ const clearUnvisitedDOM = function() {
   }
 
   while (child !== currentNode) {
-    removeChild(node, child, keyMap);
+    removeChild(data, getData(child));
     child = node.lastChild;
   }
 
