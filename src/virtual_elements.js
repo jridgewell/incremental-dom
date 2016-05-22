@@ -64,8 +64,8 @@ const elementOpen = function(tag, key, statics, var_args) {
     assertNotInSkip('elementOpen');
   }
 
-  const node = coreElementOpen(tag, key);
-  const data = getData(node);
+  const data = coreElementOpen(tag, key);
+  const node = data.node;
 
   if (!data.staticsApplied) {
     if (statics) {
@@ -207,13 +207,13 @@ const elementClose = function(tag) {
     assertNotInAttributes('elementClose');
   }
 
-  const node = coreElementClose();
+  const data = coreElementClose();
 
   if (process.env.NODE_ENV !== 'production') {
-    assertCloseMatchesOpenTag(getData(node).nodeName, tag);
+    assertCloseMatchesOpenTag(data.nodeName, tag);
   }
 
-  return node;
+  return data.node;
 };
 
 
@@ -252,8 +252,8 @@ const text = function(value, var_args) {
     assertNotInSkip('text');
   }
 
-  const node = coreText();
-  const data = getData(node);
+  const data = coreText();
+  const node = data.node;
 
   if (data.text !== value) {
     data.text = /** @type {string} */(value);

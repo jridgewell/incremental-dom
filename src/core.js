@@ -368,7 +368,7 @@ const elementOpen = function(tag, key) {
   nextNode();
   alignWithDOM(tag, key);
   enterNode();
-  return /** @type {!Element} */(currentParentData.node);
+  return currentParentData;
 };
 
 
@@ -384,7 +384,7 @@ const elementClose = function() {
   }
 
   exitNode();
-  return /** @type {!Element} */(currentNodeData.node);
+  return currentNodeData;
 };
 
 
@@ -397,7 +397,7 @@ const elementClose = function() {
 const text = function() {
   nextNode();
   alignWithDOM('#text', null);
-  return /** @type {!Text} */(currentNodeData.node);
+  return currentNodeData;
 };
 
 
