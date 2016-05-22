@@ -227,7 +227,7 @@ const alignWithDOM = function(nodeName, key) {
       } else if (keyNode === currentNode) {
         context.markDeleted(keyNode);
       } else {
-        removeChild(currentParentData, keyNodeData);
+        removeChild(parentData, keyNodeData);
       }
     }
   }
@@ -235,9 +235,9 @@ const alignWithDOM = function(nodeName, key) {
   // Create the node if it doesn't exist.
   if (!node) {
     if (nodeName === '#text') {
-      node = createText(doc, getData(currentParent));
+      node = createText(doc, parentData);
     } else {
-      node = createElement(doc, getData(currentParent), nodeName, key);
+      node = createElement(doc, parentData, nodeName, key);
     }
 
     if (key) {
