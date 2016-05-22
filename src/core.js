@@ -213,59 +213,55 @@ const alignWithDOM = function(nodeName, key) {
     return;
   }
 
-  const parentData = currentParentData;
-  const keyMap = parentData.keyMap;
-  let node;
+  const keyMap = currentParentData.keyMap;
+  let nodeData;
 
   // Check to see if the node has moved within the parent.
   if (key) {
     const keyNodeData = keyMap[key];
     if (keyNodeData) {
-      const keyNode = keyNodeData.node;
       if (matches(keyNodeData, nodeName, key)) {
-        node = keyNode;
+        nodeData = keyNodeData;
       } else if (keyNodeData === currentNodeData) {
-        context.markDeleted(keyNode);
+        context.markDeleted(keyNodeData.node);
       } else {
-        removeChild(parentData, keyNodeData);
+        removeChild(currentParentData, keyNodeData);
       }
     }
   }
 
   // Create the node if it doesn't exist.
-  if (!node) {
-    let data;
+  if (!nodeData) {
     if (nodeName === '#text') {
-      data = createText(doc, parentData);
+      nodeData = createText(doc, currentParentData);
     } else {
-      data = createElement(doc, parentData, nodeName, key);
+      nodeData = createElement(doc, currentParentData, nodeName, key);
     }
 
     if (key) {
-      keyMap[key] = data;
+      keyMap[key] = nodeData;
     }
 
-    node = data.node;
-    context.markCreated(node);
+    context.markCreated(nodeData.node);
   }
 
   // Re-order the node into the right position, preserving focus if either
   // node or currentNodeData are focused by making sure that they are not detached
   // from the DOM.
-  if (getData(node).focused) {
+  if (nodeData.focused) {
     // Move everything else before the node.
-    moveBefore(parentData, getData(node), currentNodeData);
+    moveBefore(currentParentData, nodeData, currentNodeData);
   } else if (currentNodeData && currentNodeData.key && !currentNodeData.focused) {
     // Remove the currentNodeData, which can always be added back since we hold a
     // reference through the keyMap. This prevents a large number of moves when
     // a keyed item is removed or moved backwards in the DOM.
-    parentData.replaceChild(getData(node), currentNodeData);
-    parentData.keyMapValid = false;
+    currentParentData.replaceChild(nodeData, currentNodeData);
+    currentParentData.keyMapValid = false;
   } else {
-    parentData.insertBefore(getData(node), currentNodeData);
+    currentParentData.insertBefore(nodeData, currentNodeData);
   }
 
-  currentNodeData = getData(node);
+  currentNodeData = nodeData;
 };
 
 
@@ -289,32 +285,31 @@ const removeChild = function(parentData, childData) {
  * functions were never called for them.
  */
 const clearUnvisitedDOM = function() {
-  const data = currentParentData;
-  const keyMap = data.keyMap;
-  const keyMapValid = data.keyMapValid;
-  let child = data.lastData;
+  const keyMap = currentParentData.keyMap;
+  const keyMapValid = currentParentData.keyMapValid;
+  let childData = currentParentData.lastData;
   let key;
 
-  if (child === currentNodeData && keyMapValid) {
+  if (childData === currentNodeData && keyMapValid) {
     return;
   }
 
-  while (child !== currentNodeData) {
-    removeChild(data, child);
-    child = data.lastData;
+  while (childData !== currentNodeData) {
+    removeChild(currentParentData, childData);
+    childData = currentParentData.lastData;
   }
 
   // Clean the keyMap, removing any unusued keys.
   if (!keyMapValid) {
     for (key in keyMap) {
-      child = keyMap[key];
-      if (child.parentData !== data) {
-        context.markDeleted(child.node);
+      childData = keyMap[key];
+      if (childData.parentData !== currentParentData) {
+        context.markDeleted(childData.node);
         delete keyMap[key];
       }
     }
 
-    data.keyMapValid = true;
+    currentParentData.keyMapValid = true;
   }
 };
 
