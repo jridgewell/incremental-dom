@@ -219,9 +219,10 @@ const alignWithDOM = function(nodeName, key) {
 
   // Check to see if the node has moved within the parent.
   if (key) {
-    const keyNode = keyMap[key];
-    if (keyNode) {
-      if (matches(getData(keyNode), nodeName, key)) {
+    const keyNodeData = keyMap[key];
+    if (keyNodeData) {
+      const keyNode = keyNodeData.node;
+      if (matches(keyNodeData, nodeName, key)) {
         node = keyNode;
       } else if (keyNode === currentNode) {
         context.markDeleted(keyNode);
@@ -240,7 +241,7 @@ const alignWithDOM = function(nodeName, key) {
     }
 
     if (key) {
-      keyMap[key] = node;
+      keyMap[key] = getData(node);
     }
 
     context.markCreated(node);
@@ -269,7 +270,7 @@ const alignWithDOM = function(nodeName, key) {
 /**
  * @param {?Node} node
  * @param {?Node} child
- * @param {?Object<string, !Element>} keyMap
+ * @param {?Object<string, !NodeData>} keyMap
  */
 const removeChild = function(node, child, keyMap) {
   node.removeChild(child);
@@ -306,7 +307,7 @@ const clearUnvisitedDOM = function() {
   // Clean the keyMap, removing any unusued keys.
   if (!keyMapValid) {
     for (key in keyMap) {
-      child = keyMap[key];
+      child = keyMap[key].node;
       if (child.parentNode !== node) {
         context.markDeleted(child);
         delete keyMap[key];

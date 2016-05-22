@@ -75,7 +75,7 @@ function NodeData(node, nodeName, key, parentData) {
 
   /**
    * Keeps track of children within this node by their key.
-   * {!Object<string, !Element>}
+   * {!Object<string, !NodeData>}
    */
   this.keyMap = createMap();
 
@@ -153,7 +153,7 @@ const importNode = function(node, parentData) {
   const data = initData(node, nodeName, key, parentData);
 
   if (key) {
-    parentData.keyMap[key] = node;
+    parentData.keyMap[key] = data;
   }
 
   for (let child = node.firstChild; child; child = child.nextSibling) {
