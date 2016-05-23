@@ -28,10 +28,11 @@ const DATA_PROP = '__incrementalDOMData';
  * @param {!Node} node The Node to import.
  * @param {!string} nodeName
  * @param {?string=} key
+ * @param {?string=} namespace
  * @param {?NodeData} parentData
  * @constructor
  */
-function NodeData(node, nodeName, key, parentData) {
+function NodeData(node, nodeName, key, namespace, parentData) {
   this.node = node;
 
   this.nextData = null;
@@ -96,6 +97,7 @@ function NodeData(node, nodeName, key, parentData) {
    * @const {string}
    */
   this.nodeName = nodeName;
+  this.namespace = namespace;
 
   /**
    * @type {?string}
@@ -218,11 +220,12 @@ NodeData.prototype.removeChild = function(childData) {
  * @param {Node} node The node to initialize data for.
  * @param {string} nodeName The node name of node.
  * @param {?string=} key The key that identifies the node.
+ * @param {?string=} namespace
  * @param {?NodeData} parentData
  * @return {!NodeData} The newly initialized data object
  */
-const initData = function(node, nodeName, key, parentData) {
-  const data = new NodeData(node, nodeName, key, parentData);
+const initData = function(node, nodeName, key, namespace, parentData) {
+  const data = new NodeData(node, nodeName, key, namespace, parentData);
   node[DATA_PROP] = data;
   return data;
 };
@@ -258,7 +261,8 @@ const importNode = function(node, parentData) {
   const nodeName = node.nodeName.toLowerCase();
   const isElement = node instanceof Element;
   const key = isElement ? node.getAttribute('key') : null;
-  const data = initData(node, nodeName, key, parentData);
+  const namespace = isElement ? node.namespaceURI : '';
+  const data = initData(node, nodeName, key, namespace, parentData);
 
   if (key && parentData) {
     parentData.keyMap[key] = data;

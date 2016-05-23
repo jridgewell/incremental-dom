@@ -32,7 +32,7 @@ const getNamespaceForTag = function(tag, parentData) {
     return null;
   }
 
-  return parentData.node.namespaceURI;
+  return parentData.namespace;
 };
 
 
@@ -54,7 +54,7 @@ const createElement = function(doc, parentData, tag, key) {
     el = doc.createElement(tag);
   }
 
-  return initData(el, tag, key, parentData);
+  return initData(el, tag, key, namespace, parentData);
 };
 
 
@@ -66,7 +66,7 @@ const createElement = function(doc, parentData, tag, key) {
  */
 const createText = function(doc, parentData) {
   const node = doc.createTextNode('');
-  return initData(node, '#text', null, parentData);
+  return initData(node, '#text', null, '', parentData);
 };
 
 
