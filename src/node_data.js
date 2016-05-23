@@ -29,17 +29,16 @@ const DATA_PROP = '__incrementalDOMData';
  * @param {!string} nodeName
  * @param {?string=} key
  * @param {?string=} namespace
- * @param {?NodeData} parentData
  * @constructor
  */
-function NodeData(node, nodeName, key, namespace, parentData) {
+function NodeData(node, nodeName, key, namespace) {
   this.node = node;
 
   this.nextData = null;
   this.previousData = null;
   this.firstData = null;
   this.lastData = null;
-  this.parentData = parentData;
+  this.parentData = null;
 
   /**
    * The attributes and their values.
@@ -109,19 +108,8 @@ NodeData.prototype.insertBefore = function(newNodeData, referenceNodeData) {
   this.node.insertBefore(newNodeData.node, referenceNodeData ? referenceNodeData.node : null);
 
   const oldParentData = newNodeData.parentData;
-  const oldPreviousData = newNodeData.previousData;
-  const oldNextData = newNodeData.nextData;
-  if (oldPreviousData) {
-    if (oldParentData && oldParentData.lastData === newNodeData) {
-      oldParentData.lastData = oldPreviousData;
-    }
-    oldPreviousData.nextData = oldNextData;
-  }
-  if (oldNextData) {
-    if (oldParentData && oldParentData.firstData === newNodeData) {
-      oldParentData.firstData = oldNextData;
-    }
-    oldNextData.previousData = oldPreviousData;
+  if (oldParentData) {
+    oldParentData._removeChild(newNodeData);
   }
 
   newNodeData.parentData = this;
@@ -137,8 +125,8 @@ NodeData.prototype.insertBefore = function(newNodeData, referenceNodeData) {
     const lastData = this.lastData;
     this.lastData = newNodeData;
     if (lastData) {
-      newNodeData.previousData = lastData;
       lastData.nextData = newNodeData;
+      newNodeData.previousData = lastData;
     }
   }
   if (this.firstData === referenceNodeData) {
@@ -150,66 +138,54 @@ NodeData.prototype.replaceChild = function(newChildData, referenceChildData) {
   this.node.replaceChild(newChildData.node, referenceChildData.node);
 
   const oldParentData = newChildData.parentData;
-  const oldPreviousData = newChildData.previousData;
-  const oldNextData = newChildData.nextData;
-  if (oldPreviousData) {
-    if (oldParentData && oldParentData.lastData === newChildData) {
-      oldParentData.lastData = oldPreviousData;
-    }
-    oldPreviousData.nextData = oldNextData;
-  }
-  if (oldNextData) {
-    if (oldParentData && oldParentData.firstData === newChildData) {
-      oldParentData.firstData = oldNextData;
-    }
-    oldNextData.previousData = oldPreviousData;
+  if (oldParentData) {
+    oldParentData._removeChild(newChildData);
   }
 
   const previousData = referenceChildData.previousData;
   const nextData = referenceChildData.nextData;
 
-  referenceChildData.previousData = null;
-  referenceChildData.nextData = null;
   referenceChildData.parentData = null;
+  referenceChildData.nextData = null;
+  referenceChildData.previousData = null;
 
-  newChildData.previousData = previousData;
-  newChildData.nextData = nextData;
   newChildData.parentData = this;
-  if (previousData) {
-    previousData.nextData = newChildData;
-  }
+  newChildData.nextData = nextData;
+  newChildData.previousData = previousData;
   if (nextData) {
     nextData.previousData = newChildData;
-  }
-  if (this.firstData === referenceChildData) {
-    this.firstData = newChildData;
-  }
-  if (this.lastData === referenceChildData) {
+  } else {
     this.lastData = newChildData;
+  }
+  if (previousData) {
+    previousData.nextData = newChildData;
+  } else {
+    this.firstData = newChildData;
   }
 }
 
 NodeData.prototype.removeChild = function(childData) {
   this.node.removeChild(childData.node);
+  this._removeChild(childData);
+}
 
-  const previousData = childData.previousData;
+NodeData.prototype._removeChild = function(childData) {
   const nextData = childData.nextData;
+  const previousData = childData.previousData;
 
-  childData.previousData = null;
-  childData.nextData = null;
   childData.parentData = null;
+  childData.nextData = null;
+  childData.previousData = null;
 
-  if (previousData) {
-    previousData.nextData = nextData;
-  }
   if (nextData) {
     nextData.previousData = previousData;
-  }
-  if (this.firstData === childData) {
-    this.firstData = nextData;
-  }
-  if (this.lastData === childData) {
+  } else {
     this.lastData = previousData;
+  }
+  if (previousData) {
+    previousData.nextData = nextData;
+  } else {
+    this.firstData = nextData;
   }
 }
 
@@ -221,11 +197,10 @@ NodeData.prototype.removeChild = function(childData) {
  * @param {string} nodeName The node name of node.
  * @param {?string=} key The key that identifies the node.
  * @param {?string=} namespace
- * @param {?NodeData} parentData
  * @return {!NodeData} The newly initialized data object
  */
-const initData = function(node, nodeName, key, namespace, parentData) {
-  const data = new NodeData(node, nodeName, key, namespace, parentData);
+const initData = function(node, nodeName, key, namespace) {
+  const data = new NodeData(node, nodeName, key, namespace);
   node[DATA_PROP] = data;
   return data;
 };
@@ -262,7 +237,8 @@ const importNode = function(node, parentData) {
   const isElement = node instanceof Element;
   const key = isElement ? node.getAttribute('key') : null;
   const namespace = isElement ? node.namespaceURI : '';
-  const data = initData(node, nodeName, key, namespace, parentData);
+  const data = initData(node, nodeName, key, namespace);
+  data.parentData = parentData;
 
   if (key && parentData) {
     parentData.keyMap[key] = data;
