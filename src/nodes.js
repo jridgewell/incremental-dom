@@ -61,12 +61,11 @@ const createElement = function(doc, parentData, tag, key) {
 /**
  * Creates a Text Node.
  * @param {Document} doc The document with which to create the Element.
- * @param {?NodeData} parentData
  * @return {!NodeData}
  */
-const createText = function(doc, parentData) {
+const createText = function(doc) {
   const node = doc.createTextNode('');
-  return initData(node, '#text', null, '');
+  return initData(node, '#text', null, null);
 };
 
 

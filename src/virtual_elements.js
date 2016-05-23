@@ -63,7 +63,7 @@ const elementOpen = function(tag, key, statics, var_args) {
     assertNotInSkip('elementOpen');
   }
 
-  const data = coreElementOpen(tag, key);
+  const data = coreElementOpen(tag, key || null);
   const node = data.node;
 
   if (!data.staticsApplied) {

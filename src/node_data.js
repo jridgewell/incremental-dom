@@ -236,7 +236,7 @@ const importNode = function(node, parentData) {
   const nodeName = node.nodeName.toLowerCase();
   const isElement = node instanceof Element;
   const key = isElement ? node.getAttribute('key') : null;
-  const namespace = isElement ? node.namespaceURI : '';
+  const namespace = isElement ? node.namespaceURI : null;
   const data = initData(node, nodeName, key, namespace);
   data.parentData = parentData;
 
@@ -245,8 +245,7 @@ const importNode = function(node, parentData) {
   }
 
   let prevData = null;
-  let child = node.firstChild;
-  for (; child; child = child.nextSibling) {
+  for (let child = node.firstChild; child; child = child.nextSibling) {
     importNode(child, data);
     const childData = getData(child);
     if (prevData) {

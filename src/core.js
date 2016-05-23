@@ -194,10 +194,7 @@ const patchOuter = patchFactory(function(node, fn, data) {
  * @return {boolean} True if the node matches, false otherwise.
  */
 const matches = function(nodeData, nodeName, key) {
-  // Key check is done using double equals as we want to treat a null key the
-  // same as undefined. This should be okay as the only values allowed are
-  // strings, null and undefined so the == semantics are not too weird.
-  return nodeName === nodeData.nodeName && key == nodeData.key;
+  return nodeName === nodeData.nodeName && key === nodeData.key;
 };
 
 
@@ -233,7 +230,7 @@ const alignWithDOM = function(nodeName, key) {
   // Create the node if it doesn't exist.
   if (!nodeData) {
     if (nodeName === '#text') {
-      nodeData = createText(doc, currentParentData);
+      nodeData = createText(doc);
     } else {
       nodeData = createElement(doc, currentParentData, nodeName, key);
     }
